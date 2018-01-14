@@ -4,7 +4,7 @@ namespace DLC;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Quote extends Model
+class TestQuestion extends Model
 {
-    protected $fillable = ['body'];
+    //
 }

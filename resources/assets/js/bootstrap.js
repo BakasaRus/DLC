@@ -1,7 +1,11 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router';
 window.Vue = Vue;
+
+import VueRouter from 'vue-router';
 Vue.use(VueRouter);
+
+import Vuetify from 'vuetify'
+Vue.use(Vuetify)
 
 import axios from 'axios';
 window.axios = axios;

@@ -4,7 +4,7 @@ class Auth {
 		this.postData = {
 			grant_type: 'password',
 			client_id: '2',
-			client_secret: '5IKQoE40ESJv7A2FzkxFfXrQCNXXpojGla37Fyfy',
+			client_secret: 'SRQU0teoDHITvXLihKA9QUt26CEwoAffNrC9fhzW',
 			username: '',
 			password: '',
 			scope: ''
@@ -22,13 +22,16 @@ class Auth {
 	}
 
 	login() {
-		window.axios.post('/oauth/token', this.postData)
+		return new Promise((resolve, reject) => { 
+			window.axios.post('/oauth/token', this.postData)
 			.then(response => {
 				this.tokens.access = response.data.access_token;
 				this.tokens.refresh = response.data.refresh_token;
 				window.localStorage.setItem('dlc_tokens', JSON.stringify(this.tokens));
+				resolve('Success!');
 			})
-			.catch(response => console.log(response));
+			.catch(response => reject(response));
+		});
 	}
 
 	logout() {

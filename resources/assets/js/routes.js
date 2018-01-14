@@ -3,17 +3,13 @@ import VueRouter from 'vue-router';
 let routes = [
 	{
 		path: '/',
-		component: require('./views/Home')
-	},
-
-	{
-		path: '/about',
-		component: require('./views/About')
+		component: require('./views/Main')
 	}
 ];
 
 export default new VueRouter({
 	routes,
+	//mode: 'history',
 	linkActiveClass: '',
 	linkExactActiveClass: 'is-active'
 });
