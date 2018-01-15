@@ -10,12 +10,14 @@ new Vue({
 	router,
 	data: {
 		auth: new Auth,
-		dialog: false,
-		drawer: null
+		drawer: null,
+		user: {}
 	},
 	components: { LoginView },
 	created() {
-		//
+		window.axios.get('/api/user', {headers: this.$root.auth.headers()})
+			.then(response => this.user = response.data)
+			.catch(error => console.log(error));
 	},
 	methods: {
 		logout() {

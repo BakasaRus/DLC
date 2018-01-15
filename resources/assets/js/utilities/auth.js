@@ -43,7 +43,8 @@ class Auth {
 	headers() {
 		return {
 			'Accept': 'application/json',
-			'Authorization': 'Bearer ' + this.tokens.access
+			'Authorization': 'Bearer ' + this.tokens.access,
+			//'Content-Type': 'application/x-www-form-urlencoded'
 		};
 	}
 

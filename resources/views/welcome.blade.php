@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <link rel="stylesheet" href="/css/app.css">
+        <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
         <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
         <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
@@ -13,7 +13,7 @@
     </head>
     <body>
         <div id="app" v-cloak>
-            <v-app id="inspire" v-if="this.auth.isLoggedIn()">
+            <v-app id="inspire" dark v-if="this.auth.isLoggedIn()">
                 <v-navigation-drawer clipped fixed v-model="drawer" app>
                   <v-list dense>
                     <v-list-tile @click="" to="/">
@@ -45,6 +45,10 @@
                 <v-toolbar app fixed clipped-left>
                   <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
                   <v-toolbar-title>Application</v-toolbar-title>
+                  <v-spacer></v-spacer>
+                  <v-toolbar-items class="hidden-sm-and-down">
+                    <v-btn flat>@{{ user.firstName }} @{{ user.lastName }}</v-btn>
+                  </v-toolbar-items>
                 </v-toolbar>
                 <v-content>
                   <v-container fluid fill-height>
@@ -54,10 +58,12 @@
                   </v-container>
                 </v-content>
             </v-app>
-            <v-app id="inspire" v-else>
+            <v-app id="inspire" dark v-else>
                 <login-view></login-view>
             </v-app>
         </div>
-        <script src="/js/app.js"></script>
+        <script src="{{ mix('/js/manifest.js') }}"></script>
+        <script src="{{ mix('/js/vendor.js') }}"></script>
+        <script src="{{ mix('/js/app.js') }}"></script>
     </body>
 </html>

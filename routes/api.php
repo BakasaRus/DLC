@@ -20,3 +20,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::middleware('auth:api')->get('/subjects', function () {
     return DLC\Subject::all();
 });
+
+Route::middleware('auth:api')->post('/subjects', function (Request $request) {
+    $validated = $request->validate([
+    	'name' => 'required'
+    ]);
+    DLC\Subject::create($validated);
+    return ['message' => 'Success!'];
+});
