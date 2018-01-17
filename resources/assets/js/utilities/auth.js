@@ -4,7 +4,7 @@ class Auth {
 		this.postData = {
 			grant_type: 'password',
 			client_id: '2',
-			client_secret: 'SRQU0teoDHITvXLihKA9QUt26CEwoAffNrC9fhzW',
+			client_secret: 'qG1F5mohNISu0Gf9E0Nfuy8tvT9hJTWJIgQMTeNW',
 			username: '',
 			password: '',
 			scope: ''

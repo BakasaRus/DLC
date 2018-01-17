@@ -15,6 +15,7 @@ new Vue({
 	},
 	components: { LoginView },
 	created() {
+		window.moment.locale('ru');
 		window.axios.get('/api/user', {headers: this.$root.auth.headers()})
 			.then(response => this.user = response.data)
 			.catch(error => console.log(error));

@@ -2,8 +2,12 @@ import VueRouter from 'vue-router';
 
 let routes = [
 	{
-		path: '/',
-		component: require('./views/Main')
+		path: '/subjects',
+		component: require('./views/Subjects')
+	},
+	{
+		path: '/tests',
+		component: require('./views/Tests')
 	}
 ];
 

@@ -16,17 +16,17 @@ class CreateTestsTable extends Migration
         Schema::create('tests', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->integer('authorId')->unsigned();
-            $table->integer('subjectId')->unsigned();
-            $table->integer('questionsCount')->unsigned();
+            $table->integer('author_id')->unsigned();
+            $table->integer('subject_id')->unsigned();
+            $table->integer('questions_count')->unsigned();
             $table->timestamps();
 
-            $table->foreign('authorId')
+            $table->foreign('author_id')
                   ->references('id')
                   ->on('users')
                   ->onDelete('cascade');
 
-            $table->foreign('subjectId')
+            $table->foreign('subject_id')
                   ->references('id')
                   ->on('subjects')
                   ->onDelete('cascade');
@@ -41,8 +41,8 @@ class CreateTestsTable extends Migration
     public function down()
     {
         Schema::table('tests', function (Blueprint $table) {
-            $table->dropForeign(['authorId']);
-            $table->dropForeign(['subjectId']);
+            $table->dropForeign(['author_id']);
+            $table->dropForeign(['subject_id']);
         });
         Schema::dropIfExists('tests');
     }

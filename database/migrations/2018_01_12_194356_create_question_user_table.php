@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTestQuestionUserTable extends Migration
+class CreateQuestionUserTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,18 @@ class CreateTestQuestionUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('testQuestion_user', function (Blueprint $table) {
-            $table->integer('testQuestionId')->unsigned();
-            $table->integer('userId')->unsigned();
+        Schema::create('question_user', function (Blueprint $table) {
+            $table->integer('question_id')->unsigned();
+            $table->integer('user_id')->unsigned();
             $table->string('answer');
             $table->timestamps();
 
-            $table->foreign('testQuestionId')
+            $table->foreign('question_id')
                   ->references('id')
-                  ->on('testQuestions')
+                  ->on('questions')
                   ->onDelete('cascade');
 
-            $table->foreign('userId')
+            $table->foreign('user_id')
                   ->references('id')
                   ->on('users')
                   ->onDelete('cascade');
@@ -38,10 +38,10 @@ class CreateTestQuestionUserTable extends Migration
      */
     public function down()
     {
-        Schema::table('test_user', function (Blueprint $table) {
-            $table->dropForeign(['userId']);
-            $table->dropForeign(['testQuestionId']);
+        Schema::table('question_user', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['question_id']);
         });
-        Schema::dropIfExists('testQuestion_user');
+        Schema::dropIfExists('question_user');
     }
 }

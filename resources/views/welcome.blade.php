@@ -13,23 +13,23 @@
     </head>
     <body>
         <div id="app" v-cloak>
-            <v-app id="inspire" dark v-if="this.auth.isLoggedIn()">
+            <v-app id="inspire" v-if="this.auth.isLoggedIn()">
                 <v-navigation-drawer clipped fixed v-model="drawer" app>
                   <v-list dense>
-                    <v-list-tile @click="" to="/">
+                    <v-list-tile @click="" to="/subjects">
                       <v-list-tile-action>
                         <v-icon>dashboard</v-icon>
                       </v-list-tile-action>
                       <v-list-tile-content>
-                        <v-list-tile-title>Dashboard</v-list-tile-title>
+                        <v-list-tile-title>Предметы</v-list-tile-title>
                       </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile @click="">
+                    <v-list-tile @click="" to="/tests">
                       <v-list-tile-action>
                         <v-icon>settings</v-icon>
                       </v-list-tile-action>
                       <v-list-tile-content>
-                        <v-list-tile-title>Settings</v-list-tile-title>
+                        <v-list-tile-title>Тесты</v-list-tile-title>
                       </v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile @click="logout">
@@ -37,14 +37,14 @@
                         <v-icon>exit_to_app</v-icon>
                       </v-list-tile-action>
                       <v-list-tile-content>
-                        <v-list-tile-title>Logout</v-list-tile-title>
+                        <v-list-tile-title>Выйти</v-list-tile-title>
                       </v-list-tile-content>
                     </v-list-tile>
                   </v-list>
                 </v-navigation-drawer>
                 <v-toolbar app fixed clipped-left>
                   <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-                  <v-toolbar-title>Application</v-toolbar-title>
+                  <v-toolbar-title>Центр дистанционного обучения</v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-toolbar-items class="hidden-sm-and-down">
                     <v-btn flat>@{{ user.firstName }} @{{ user.lastName }}</v-btn>

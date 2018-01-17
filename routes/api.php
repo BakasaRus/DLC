@@ -17,14 +17,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:api')->get('/subjects', function () {
-    return DLC\Subject::all();
-});
+Route::get('/subjects', 'SubjectController@index');
+Route::post('/subjects', 'SubjectController@store');
 
-Route::middleware('auth:api')->post('/subjects', function (Request $request) {
-    $validated = $request->validate([
-    	'name' => 'required'
-    ]);
-    DLC\Subject::create($validated);
-    return ['message' => 'Success!'];
-});
+Route::get('/tests', 'TestController@index');

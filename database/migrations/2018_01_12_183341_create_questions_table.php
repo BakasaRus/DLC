@@ -17,12 +17,19 @@ class CreateQuestionsTable extends Migration
             $table->increments('id');
             $table->text('body');
             $table->string('answer');
-            $table->integer('subjectId')->unsigned();
+            $table->integer('test_id')->unsigned();
+            $table->integer('author_id')->unsigned();
+            $table->integer('points')->unsigned();
             $table->timestamps();
 
-            $table->foreign('subjectId')
+            $table->foreign('test_id')
                   ->references('id')
-                  ->on('subjects')
+                  ->on('tests')
+                  ->onDelete('cascade');
+
+            $table->foreign('author_id')
+                  ->references('id')
+                  ->on('users')
                   ->onDelete('cascade');
         });
     }
@@ -35,7 +42,8 @@ class CreateQuestionsTable extends Migration
     public function down()
     {
         Schema::table('tests', function (Blueprint $table) {
-            $table->dropForeign(['subjectId']);
+            $table->dropForeign(['test_id']);
+            $table->dropForeign(['author_id']);
         });
         Schema::dropIfExists('questions');
     }
