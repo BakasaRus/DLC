@@ -18,6 +18,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('/subjects', 'SubjectController@index');
+Route::get('/subjects/{subject}', 'SubjectController@show');
 Route::post('/subjects', 'SubjectController@store');
+Route::patch('/subjects/{subject}', 'SubjectController@update');
+Route::delete('/subjects/{subject}', 'SubjectController@delete');
 
 Route::get('/tests', 'TestController@index');
+Route::post('/tests', 'TestController@store');

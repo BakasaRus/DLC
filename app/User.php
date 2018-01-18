@@ -28,9 +28,9 @@ class User extends Authenticatable
 		'password', 'remember_token',
 	];
 
-	public function subjects()
+	public function createdSubjects()
 	{
-		return $this->hasMany(Subject::class);
+		return $this->hasMany(Subject::class, 'author_id');
 	}
 
     public function tests()

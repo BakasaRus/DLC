@@ -4,7 +4,7 @@ class Auth {
 		this.postData = {
 			grant_type: 'password',
 			client_id: '2',
-			client_secret: 'qG1F5mohNISu0Gf9E0Nfuy8tvT9hJTWJIgQMTeNW',
+			client_secret: 'CTxlPhHYjxJD3l2I03ozyzRTn8vcRlIzjHY9VQ6l',
 			username: '',
 			password: '',
 			scope: ''
@@ -38,14 +38,6 @@ class Auth {
 		window.localStorage.removeItem('dlc_tokens');
 		this.tokens.access = '';
 		this.tokens.refresh = '';
-	}
-
-	headers() {
-		return {
-			'Accept': 'application/json',
-			'Authorization': 'Bearer ' + this.tokens.access,
-			//'Content-Type': 'application/x-www-form-urlencoded'
-		};
 	}
 
 	isLoggedIn() {

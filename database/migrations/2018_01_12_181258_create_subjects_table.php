@@ -16,7 +16,13 @@ class CreateSubjectsTable extends Migration
         Schema::create('subjects', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->unique();
+            $table->integer('author_id')->unsigned();
             $table->timestamps();
+
+            $table->foreign('author_id')
+                  ->references('id')
+                  ->on('users')
+                  ->onDelete('cascade');
         });
     }
 
@@ -27,6 +33,9 @@ class CreateSubjectsTable extends Migration
      */
     public function down()
     {
+        Schema::table('tests', function (Blueprint $table) {
+            $table->dropForeign(['author_id']);
+        });
         Schema::dropIfExists('subjects');
     }
 }

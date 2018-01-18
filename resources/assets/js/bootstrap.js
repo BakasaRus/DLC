@@ -13,6 +13,12 @@ window.axios = axios;
 import moment from 'moment';
 window.moment = moment;
 
+import Auth from './utilities/auth';
+window.Auth = Auth;
+
+import Form from './utilities/form';
+window.Form = Form;
+
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 let token = document.head.querySelector('meta[name="csrf-token"]');
