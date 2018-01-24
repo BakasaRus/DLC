@@ -4,6 +4,7 @@ namespace DLC\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DLC\Test;
+use DLC\Http\Resources\Tests;
 
 class TestController extends Controller
 {
@@ -14,7 +15,12 @@ class TestController extends Controller
 	
 	public function index()
 	{
-		return Test::with(['author:id,first_name,last_name,middle_name', 'subject:id,name'])->get();
+		return Tests::collection(Test::all());
+	}
+
+	public function show(Test $test)
+	{
+		return new Tests($test);
 	}
 
 	public function store(Request $request)

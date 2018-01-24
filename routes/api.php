@@ -17,6 +17,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/users', 'UserController@index');
+Route::get('/users/{user}', 'UserController@show');
+
 Route::get('/subjects', 'SubjectController@index');
 Route::get('/subjects/{subject}', 'SubjectController@show');
 Route::post('/subjects', 'SubjectController@store');
@@ -24,4 +27,5 @@ Route::patch('/subjects/{subject}', 'SubjectController@update');
 Route::delete('/subjects/{subject}', 'SubjectController@delete');
 
 Route::get('/tests', 'TestController@index');
+Route::get('/tests/{test}', 'TestController@show');
 Route::post('/tests', 'TestController@store');

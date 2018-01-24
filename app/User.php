@@ -28,6 +28,16 @@ class User extends Authenticatable
 		'password', 'remember_token',
 	];
 
+	public function isAdmin()
+	{
+		return $this->role == 2;
+	}
+
+	public function isEditor()
+	{
+		return $this->role >= 1;
+	}
+
 	public function createdSubjects()
 	{
 		return $this->hasMany(Subject::class, 'author_id');

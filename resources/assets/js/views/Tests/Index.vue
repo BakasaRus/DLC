@@ -1,5 +1,6 @@
 <template>
-	<div>
+<v-layout row wrap justify-center align-center>
+	<v-flex xs12>
 		<v-data-table
 			v-bind:headers="headers"
 			:items="tests"
@@ -9,10 +10,30 @@
 		>
 			<template slot="items" slot-scope="props">
 				<td>{{ props.item.id }}</td>
-				<td class="text-xs-right">{{ props.item.name }}</td>
-				<td class="text-xs-right">{{ props.item.author.first_name }} {{ props.item.author.last_name }}</td>
-				<td class="text-xs-right">{{ props.item.subject.name }}</td>
-				<td class="text-xs-right">{{ props.item.created_at | readable }}</td>
+				<td>{{ props.item.name }}</td>
+				<td>{{ props.item.author.first_name }} {{ props.item.author.last_name }}</td>
+				<td>{{ props.item.subject.name }}</td>
+				<td>{{ props.item.created_at | readable }}</td>
+				<td>
+					<v-tooltip bottom>
+						<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="toggleEditingSubject(props.item)" slot="activator">
+							<v-icon color="green">edit</v-icon>
+						</v-btn>
+						<span>Редактировать</span>
+					</v-tooltip>
+					<v-tooltip bottom>
+						<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="deleteSubject(props.item)" slot="activator">
+							<v-icon color="red">delete</v-icon>
+						</v-btn>
+						<span>Удалить</span>
+					</v-tooltip>
+					<v-tooltip bottom>
+						<v-btn icon class="mx-0" :to="'/tests/' + props.item.id" slot="activator">
+							<v-icon color="blue">keyboard_arrow_right</v-icon>
+						</v-btn>
+						<span>Подробнее</span>
+					</v-tooltip>
+				</td>
 			</template>
 		</v-data-table>
 		<v-dialog v-model="creatingForm.isVisible" max-width="500px">
@@ -70,7 +91,8 @@
 			</v-form>
 			</v-card>
 		</v-dialog>
-	</div>
+	</v-flex>
+</v-layout>
 </template>
 
 <script>
@@ -91,8 +113,9 @@
 				{ text: 'ID', value: 'id', align: 'left' },
 				{ text: 'Название теста', value: 'name', align: 'left' },
 				{ text: 'Автор', value: 'author_id', align: 'left' },
-				{ text: 'Предмет', value: 'subject_id', align: 'left' },
-				{ text: 'Дата создания', value: 'created_at', align: 'left' }
+				{ text: 'Предмет', value: 'subject.name', align: 'left' },
+				{ text: 'Дата создания', value: 'created_at', align: 'left' },
+				{ text: 'Действия', value: 'name', align: 'left', sortable: false },
 			]
 		}),
 
@@ -106,7 +129,7 @@
 				this.loading = true;
 				window.axios.get('/api/tests')
 					.then(response => {
-						this.tests = response.data;
+						this.tests = response.data.data;
 						this.loading = false;
 					})
 					.catch(error => {
@@ -131,14 +154,18 @@
 
 			loadSubjects() {
 				window.axios.get('/api/subjects')
-					.then(response => this.subjects = response.data)
+					.then(response => this.subjects = response.data.data)
 					.catch(error => this.subjects = [{name: error.message}]);
+			},
+
+			isAuthor(subject) {
+				return subject.author.id == this.$root.user.id;
 			}
 		},
 
 		filters: {
 			readable(date) {
-				return moment(date).fromNow();
+				return moment(date).format('LLL');
 			}
 		}
 	}

@@ -4,6 +4,7 @@ namespace DLC\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DLC\Subject;
+use DLC\Http\Resources\Subjects;
 
 class SubjectController extends Controller
 {
@@ -14,12 +15,12 @@ class SubjectController extends Controller
 	
 	public function index()
 	{
-		return Subject::with('author:id,first_name,last_name,middle_name')->get();
+		return Subjects::collection(Subject::all());
 	}
 
 	public function show(Subject $subject)
 	{
-		return $subject->load('author:id,first_name,last_name,middle_name');
+		return new Subjects($subject);
 	}
 
 	public function store(Request $request)

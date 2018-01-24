@@ -1,31 +1,27 @@
 require('./bootstrap');
 import router from './routes';
-import LoginView from './views/Login';
-import LoadingView from './views/Loading';
-
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
+import LoginView from './views/Layouts/Login';
+import LoadingView from './views/Layouts/Loading';
+import MainView from './views/Layouts/App';
 
 new Vue({
 	el: '#app',
 	router,
 	data: {
 		auth: new window.Auth,
-		drawer: null,
 		user: {}
 	},
-	components: { LoginView, LoadingView },
+	components: { LoginView, LoadingView, MainView },
 	created() {
-		window.axios.defaults.headers.common['Accept'] = 'application/json';
 		window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.auth.tokens.access;
 
-		window.moment.locale('ru');
 		window.axios.get('/api/user')
 			.then(response => this.user = response.data)
 			.catch(error => console.log(error));
 	},
 	methods: {
 		logout() {
-			this.$root.auth.logout();
+			this.auth.logout();
 		}
 	}
 });

@@ -1,5 +1,6 @@
 <template>
-	<div>
+<v-layout row wrap justify-center align-center>
+	<v-flex xs12>
 		<v-data-table
 			v-bind:headers="headers"
 			:items="subjects"
@@ -10,10 +11,10 @@
 		>
 			<template slot="items" slot-scope="props">
 				<td>{{ props.item.id }}</td>
-				<td class="text-xs-right">{{ props.item.name }}</td>
-				<td class="text-xs-right">{{ props.item.author.first_name }} {{ props.item.author.last_name }}</td>
-				<td class="text-xs-right">{{ props.item.created_at | readable }}</td>
-				<td class="justify-center layout px-0">
+				<td>{{ props.item.name }}</td>
+				<td>{{ props.item.author.first_name }} {{ props.item.author.last_name }}</td>
+				<td>{{ props.item.created_at | readable }}</td>
+				<td>
 					<v-tooltip bottom>
 						<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="toggleEditingSubject(props.item)" slot="activator">
 							<v-icon color="green">edit</v-icon>
@@ -25,6 +26,12 @@
 							<v-icon color="red">delete</v-icon>
 						</v-btn>
 						<span>Удалить</span>
+					</v-tooltip>
+					<v-tooltip bottom>
+						<v-btn icon class="mx-0" :to="'/subjects/' + props.item.id" slot="activator">
+							<v-icon color="blue">keyboard_arrow_right</v-icon>
+						</v-btn>
+						<span>Подробнее</span>
 					</v-tooltip>
 				</td>
 			</template>
@@ -78,7 +85,8 @@
 			</v-form>
 			</v-card>
 		</v-dialog>
-	</div>
+	</v-flex>
+</v-layout>
 </template>
 
 <script>
@@ -98,9 +106,9 @@
 			headers: [
 				{ text: 'ID', value: 'id', align: 'left' },
 				{ text: 'Предмет', value: 'name', align: 'left' },
-				{ text: 'Создатель', value: 'author_id', align: 'left' },
+				{ text: 'Куратор', value: 'author_id', align: 'left' },
 				{ text: 'Дата создания', value: 'created_at', align: 'left' },
-				{ text: 'Действия', value: 'name', sortable: false },
+				{ text: 'Действия', value: 'name', align: 'left', sortable: false },
 			]
 		}),
 
@@ -115,7 +123,7 @@
 				this.loading = true;
 				window.axios.get('/api/subjects')
 					.then(response => {
-						this.subjects = response.data;
+						this.subjects = response.data.data;
 						this.loading = false;
 					})
 					.catch(error => {
@@ -165,13 +173,13 @@
 			},
 
 			isAuthor(subject) {
-				return subject.author_id == this.$root.user.id;
+				return subject.author.id == this.$root.user.id;
 			}
 		},
 
 		filters: {
 			readable(date) {
-				return moment(date).fromNow();
+				return moment(date).format('LLL');
 			}
 		}
 	}
