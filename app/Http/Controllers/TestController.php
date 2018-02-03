@@ -31,7 +31,17 @@ class TestController extends Controller
 			'subject_id' => 'required|integer|min:1'
 		]);
 		\Auth::guard('api')->user()->createdTests()->create($validated);
-		//Subject::create($validated);
+		return ['message' => 'Success!'];
+	}
+
+	public function update(Test $test)
+	{
+		$validated = request()->validate([
+			'name' => 'required',
+			'questions_count' => 'required|integer|min:1',
+			'subject_id' => 'required|integer|min:1'
+		]);
+		$test->update($validated);
 		return ['message' => 'Success!'];
 	}
 }

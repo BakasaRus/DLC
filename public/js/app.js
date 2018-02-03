@@ -238,40 +238,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
 		return {
 			subjects: [],
-			creatingForm: new window.Form({
+			form: new window.Form({
 				name: ''
 			}),
-			editingForm: new window.Form({
-				name: ''
-			}),
+			editing: false,
 			loading: false,
 			rules: {
 				required: function required(value) {
@@ -283,11 +258,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	},
 
 	mounted: function mounted() {
-		this.creatingForm.ref = this.$refs.createForm;
-		this.editingForm.ref = this.$refs.editForm;
+		this.form.ref = this.$refs.form;
 		this.loadSubjects();
 	},
 
+
+	computed: {
+		formCaption: function formCaption() {
+			return this.editing ? 'Изменение предмета' : 'Создание предмета';
+		},
+		formActionBtn: function formActionBtn() {
+			return this.editing ? 'Сохранить' : 'Добавить';
+		}
+	},
 
 	methods: {
 		loadSubjects: function loadSubjects() {
@@ -302,17 +285,27 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				_this.loading = false;
 			});
 		},
+		formAction: function formAction() {
+			if (this.editing) this.updateSubject();else this.createSubject();
+		},
 		toggleEditingSubject: function toggleEditingSubject(subject) {
-			this.editingForm.name = subject.name;
-			this.editingForm.id = subject.id;
-			this.editingForm.show();
+			this.form.name = subject.name;
+			this.form.id = subject.id;
+			this.editing = true;
+			this.form.show();
+		},
+		toggleCreatingSubject: function toggleCreatingSubject() {
+			this.form.reset();
+			this.editing = false;
+			this.form.show();
 		},
 		updateSubject: function updateSubject() {
 			var _this2 = this;
 
-			window.axios.delete('/api/subjects/' + this.editingForm.id, this.editingForm.data()).then(function (response) {
+			window.axios.patch('/api/subjects/' + this.form.id, this.form.data()).then(function (response) {
 				console.log(response.data);
 				_this2.loadSubjects();
+				_this2.form.hide();
 			}).catch(function (error) {
 				console.log(error.data);
 			});
@@ -330,9 +323,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		createSubject: function createSubject() {
 			var _this4 = this;
 
-			window.axios.post('/api/subjects', this.creatingForm.data()).then(function (response) {
-				_this4.creatingForm.hide();
-				_this4.creatingForm.reset();
+			window.axios.post('/api/subjects', this.form.data()).then(function (response) {
+				_this4.form.hide();
+				_this4.form.reset();
 				_this4.loadSubjects();
 			}).catch(function (error) {
 				console.log(error.data);
@@ -491,43 +484,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
 		return {
 			tests: [],
 			subjects: [],
-			creatingForm: new window.Form({
+			form: new window.Form({
 				name: '',
 				subject_id: 0,
-				questions_count: ''
+				questions_count: '',
+				id: 0
 			}),
 			loading: false,
+			editing: false,
 			rules: {
 				required: function required(value) {
 					return !!value || 'Это поле обязательно для заполнения';
@@ -538,10 +508,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	},
 
 	mounted: function mounted() {
-		this.creatingForm.ref = this.$refs.createForm;
+		this.form.ref = this.$refs.form;
 		this.loadTests();
 	},
 
+
+	computed: {
+		formCaption: function formCaption() {
+			return this.editing ? 'Изменение теста' : 'Создание теста';
+		},
+		formActionBtn: function formActionBtn() {
+			return this.editing ? 'Сохранить' : 'Добавить';
+		}
+	},
 
 	methods: {
 		loadTests: function loadTests() {
@@ -559,43 +538,55 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		createTest: function createTest() {
 			var _this2 = this;
 
-			if (this.creatingForm.validate()) {
-				window.axios.post('/api/tests', this.creatingForm.data()).then(function (response) {
-					_this2.creatingForm.hide();
-					_this2.creatingForm.reset();
+			if (this.form.validate()) {
+				window.axios.post('/api/tests', this.form.data()).then(function (response) {
+					_this2.form.hide();
+					_this2.form.reset();
 					_this2.loadTests();
 				}).catch(function (error) {
 					console.log(error.data);
 				});
 			}
 		},
-		loadSubjects: function loadSubjects() {
+		updateTest: function updateTest() {
 			var _this3 = this;
 
+			if (this.form.validate()) {
+				window.axios.patch('/api/tests/' + this.form.id, this.form.data()).then(function (response) {
+					_this3.loadTests();
+					_this3.form.hide();
+					_this3.form.reset();
+				}).catch(function (error) {
+					console.log(error.data);
+				});
+			}
+		},
+		formAction: function formAction() {
+			if (this.editing) this.updateTest();else this.createTest();
+		},
+		toggleCreatingTest: function toggleCreatingTest() {
+			this.loadSubjects();
+			this.editing = false;
+			this.form.reset();
+			this.form.show();
+		},
+		toggleEditingTest: function toggleEditingTest(test) {
+			this.loadSubjects();
+			this.editing = true;
+			this.form.setData(test);
+			this.form.show();
+		},
+		loadSubjects: function loadSubjects() {
+			var _this4 = this;
+
 			window.axios.get('/api/subjects').then(function (response) {
-				return _this3.subjects = response.data.data;
+				return _this4.subjects = response.data.data;
 			}).catch(function (error) {
-				return _this3.subjects = [{ name: error.message }];
+				return _this4.subjects = [{ name: error.message }];
 			});
 		},
 		isAuthor: function isAuthor(subject) {
 			return subject.author_id == this.$root.user.id;
-		},
-		loadTest: function loadTest(props) {
-			var _this4 = this;
-
-			this.loading = true;
-			var index = this.tests.map(function (test) {
-				return test.id;
-			}).indexOf(props.item.id);
-			window.axios.get('/api/tests/' + props.item.id).then(function (response) {
-				_this4.tests[index] = response.data.data;
-				props.expanded = true;
-				_this4.loading = false;
-			}).catch(function (error) {
-				console.log(error);
-				_this4.loading = false;
-			});
 		}
 	},
 
@@ -647,23 +638,165 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
 		return {
-			test: {}
+			test: {},
+			form: new window.Form({
+				body: '',
+				answer: '',
+				points: 1,
+				test_id: 0,
+				id: 0
+			}),
+			loading: false,
+			editing: false,
+			rules: {
+				required: function required(value) {
+					return !!value || 'Это поле обязательно для заполнения';
+				}
+			}
 		};
 	},
 
+	mounted: function mounted() {
+		this.form.ref = this.$refs.form;
+	},
 	created: function created() {
-		var _this = this;
+		this.loadTest();
+	},
 
-		window.axios.get('/api/tests/' + this.$route.params.id).then(function (response) {
-			_this.test = response.data.data;
-			console.log('Success!');
-		}).catch(function (error) {
-			console.log(error);
-		});
+
+	computed: {
+		formCaption: function formCaption() {
+			return this.editing ? 'Изменение вопроса' : 'Создание вопроса';
+		},
+		formActionBtn: function formActionBtn() {
+			return this.editing ? 'Сохранить' : 'Добавить';
+		}
+	},
+
+	methods: {
+		isAuthor: function isAuthor(subject) {
+			return subject.author_id == this.$root.user.id;
+		},
+		loadTest: function loadTest() {
+			var _this = this;
+
+			window.axios.get('/api/tests/' + this.$route.params.id).then(function (response) {
+				_this.test = response.data.data;
+				_this.form.test_id = _this.test.id;
+			}).catch(function (error) {
+				console.log(error);
+			});
+		},
+		formAction: function formAction() {
+			if (this.editing) this.updateQuestion();else this.createQuestion();
+		},
+		toggleCreatingQuestion: function toggleCreatingQuestion() {
+			this.form.ref = this.$refs.form;
+			this.editing = false;
+			this.form.reset();
+			this.form.show();
+		},
+		toggleEditingQuestion: function toggleEditingQuestion(test) {
+			this.form.ref = this.$refs.form;
+			this.editing = true;
+			this.form.setData(test);
+			this.form.show();
+		},
+		createQuestion: function createQuestion() {
+			var _this2 = this;
+
+			if (this.form.validate()) {
+				window.axios.post('/api/questions', this.form.data()).then(function (response) {
+					_this2.form.hide();
+					_this2.form.reset();
+					_this2.loadTest();
+				}).catch(function (error) {
+					console.log(error.data);
+				});
+			}
+		},
+		updateQuestion: function updateQuestion() {
+			var _this3 = this;
+
+			if (this.form.validate()) {
+				window.axios.patch('/api/questions/' + this.form.id, this.form.data()).then(function (response) {
+					_this3.loadQuestions();
+					_this3.form.hide();
+					_this3.form.reset();
+				}).catch(function (error) {
+					console.log(error.data);
+				});
+			}
+		}
 	}
 });
 
@@ -1051,143 +1184,129 @@ var render = function() {
                 key: "items",
                 fn: function(props) {
                   return [
-                    _c(
-                      "tr",
-                      {
-                        on: {
-                          click: function($event) {
-                            _vm.loadSubject(props)
-                          }
-                        }
-                      },
-                      [
-                        _c("td", [_vm._v(_vm._s(props.item.id))]),
-                        _vm._v(" "),
-                        _c("td", [_vm._v(_vm._s(props.item.name))]),
-                        _vm._v(" "),
-                        _c("td", [
-                          _vm._v(
-                            _vm._s(props.item.author.first_name) +
-                              " " +
-                              _vm._s(props.item.author.last_name)
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("td", [
-                          _vm._v(
-                            _vm._s(
-                              _vm._f("readable")(props.item.created_at.date)
-                            )
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c(
-                          "td",
-                          [
-                            _c(
-                              "v-tooltip",
-                              { attrs: { bottom: "" } },
-                              [
-                                _c(
-                                  "v-btn",
-                                  {
-                                    staticClass: "mx-0",
-                                    attrs: {
-                                      slot: "activator",
-                                      icon: "",
-                                      disabled: !_vm.isAuthor(props.item)
-                                    },
-                                    on: {
-                                      click: function($event) {
-                                        _vm.toggleEditingSubject(props.item)
-                                      }
-                                    },
-                                    slot: "activator"
-                                  },
-                                  [
-                                    _c(
-                                      "v-icon",
-                                      { attrs: { color: "green" } },
-                                      [_vm._v("edit")]
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c("span", [_vm._v("Редактировать")])
-                              ],
-                              1
-                            ),
-                            _vm._v(" "),
-                            _c(
-                              "v-tooltip",
-                              { attrs: { bottom: "" } },
-                              [
-                                _c(
-                                  "v-btn",
-                                  {
-                                    staticClass: "mx-0",
-                                    attrs: {
-                                      slot: "activator",
-                                      icon: "",
-                                      disabled: !_vm.isAuthor(props.item)
-                                    },
-                                    on: {
-                                      click: function($event) {
-                                        _vm.deleteSubject(props.item)
-                                      }
-                                    },
-                                    slot: "activator"
-                                  },
-                                  [
-                                    _c("v-icon", { attrs: { color: "red" } }, [
-                                      _vm._v("delete")
-                                    ])
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c("span", [_vm._v("Удалить")])
-                              ],
-                              1
-                            ),
-                            _vm._v(" "),
-                            _c(
-                              "v-tooltip",
-                              { attrs: { bottom: "" } },
-                              [
-                                _c(
-                                  "v-btn",
-                                  {
-                                    staticClass: "mx-0",
-                                    attrs: {
-                                      slot: "activator",
-                                      icon: "",
-                                      disabled: true
-                                    },
-                                    slot: "activator"
-                                  },
-                                  [
-                                    _c("v-icon", { attrs: { color: "blue" } }, [
-                                      _vm._v("expand_more")
-                                    ])
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c("span", [
-                                  _vm._v(
-                                    "Подробнее (оставлено на будущее, вдруг пригодится)"
-                                  )
-                                ])
-                              ],
-                              1
-                            )
-                          ],
-                          1
+                    _c("tr", [
+                      _c("td", [_vm._v(_vm._s(props.item.id))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(props.item.name))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          _vm._s(props.item.author.first_name) +
+                            " " +
+                            _vm._s(props.item.author.last_name)
                         )
-                      ]
-                    )
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          _vm._s(_vm._f("readable")(props.item.created_at.date))
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "td",
+                        [
+                          _c(
+                            "v-tooltip",
+                            { attrs: { bottom: "" } },
+                            [
+                              _c(
+                                "v-btn",
+                                {
+                                  staticClass: "mx-0",
+                                  attrs: {
+                                    slot: "activator",
+                                    icon: "",
+                                    disabled: !_vm.isAuthor(props.item)
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.toggleEditingSubject(props.item)
+                                    }
+                                  },
+                                  slot: "activator"
+                                },
+                                [
+                                  _c("v-icon", { attrs: { color: "green" } }, [
+                                    _vm._v("edit")
+                                  ])
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c("span", [_vm._v("Редактировать")])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-tooltip",
+                            { attrs: { bottom: "" } },
+                            [
+                              _c(
+                                "v-btn",
+                                {
+                                  staticClass: "mx-0",
+                                  attrs: {
+                                    slot: "activator",
+                                    icon: "",
+                                    disabled: !_vm.isAuthor(props.item)
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.deleteSubject(props.item)
+                                    }
+                                  },
+                                  slot: "activator"
+                                },
+                                [
+                                  _c("v-icon", { attrs: { color: "red" } }, [
+                                    _vm._v("delete")
+                                  ])
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c("span", [_vm._v("Удалить")])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-tooltip",
+                            { attrs: { bottom: "" } },
+                            [
+                              _c(
+                                "v-btn",
+                                {
+                                  staticClass: "mx-0",
+                                  attrs: {
+                                    slot: "activator",
+                                    icon: "",
+                                    disabled: true
+                                  },
+                                  slot: "activator"
+                                },
+                                [
+                                  _c("v-icon", { attrs: { color: "blue" } }, [
+                                    _vm._v("expand_more")
+                                  ])
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c("span", [
+                                _vm._v(
+                                  "Подробнее (оставлено на будущее, вдруг пригодится)"
+                                )
+                              ])
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ])
                   ]
                 }
               }
@@ -1199,51 +1318,33 @@ var render = function() {
             {
               attrs: { "max-width": "500px" },
               model: {
-                value: _vm.creatingForm.isVisible,
+                value: _vm.form.isVisible,
                 callback: function($$v) {
-                  _vm.$set(_vm.creatingForm, "isVisible", $$v)
+                  _vm.$set(_vm.form, "isVisible", $$v)
                 },
-                expression: "creatingForm.isVisible"
+                expression: "form.isVisible"
               }
             },
             [
-              _c(
-                "v-btn",
-                {
-                  attrs: {
-                    slot: "activator",
-                    fixed: "",
-                    dark: "",
-                    fab: "",
-                    bottom: "",
-                    right: "",
-                    color: "indigo"
-                  },
-                  slot: "activator"
-                },
-                [_c("v-icon", [_vm._v("add")])],
-                1
-              ),
-              _vm._v(" "),
               _c(
                 "v-card",
                 [
                   _c(
                     "v-form",
                     {
-                      ref: "createForm",
+                      ref: "form",
                       model: {
-                        value: _vm.creatingForm.isValid,
+                        value: _vm.form.isValid,
                         callback: function($$v) {
-                          _vm.$set(_vm.creatingForm, "isValid", $$v)
+                          _vm.$set(_vm.form, "isValid", $$v)
                         },
-                        expression: "creatingForm.isValid"
+                        expression: "form.isValid"
                       }
                     },
                     [
                       _c("v-card-title", [
                         _c("span", { staticClass: "headline" }, [
-                          _vm._v("Новый предмет")
+                          _vm._v(_vm._s(_vm.formCaption))
                         ]),
                         _vm._v(" "),
                         _c("p", { staticClass: "body-2" }, [
@@ -1263,11 +1364,11 @@ var render = function() {
                               counter: 50
                             },
                             model: {
-                              value: _vm.creatingForm.name,
+                              value: _vm.form.name,
                               callback: function($$v) {
-                                _vm.$set(_vm.creatingForm, "name", $$v)
+                                _vm.$set(_vm.form, "name", $$v)
                               },
-                              expression: "creatingForm.name"
+                              expression: "form.name"
                             }
                           })
                         ],
@@ -1285,111 +1386,15 @@ var render = function() {
                               attrs: {
                                 flat: "",
                                 color: "primary",
-                                disabled: !_vm.creatingForm.isValid
+                                disabled: !_vm.form.isValid
                               },
                               nativeOn: {
                                 click: function($event) {
-                                  _vm.createSubject()
+                                  _vm.formAction($event)
                                 }
                               }
                             },
-                            [_vm._v("Добавить")]
-                          )
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c(
-            "v-dialog",
-            {
-              attrs: { "max-width": "500px" },
-              model: {
-                value: _vm.editingForm.isVisible,
-                callback: function($$v) {
-                  _vm.$set(_vm.editingForm, "isVisible", $$v)
-                },
-                expression: "editingForm.isVisible"
-              }
-            },
-            [
-              _c(
-                "v-card",
-                [
-                  _c(
-                    "v-form",
-                    {
-                      ref: "editForm",
-                      model: {
-                        value: _vm.editingForm.isValid,
-                        callback: function($$v) {
-                          _vm.$set(_vm.editingForm, "isValid", $$v)
-                        },
-                        expression: "editingForm.isValid"
-                      }
-                    },
-                    [
-                      _c("v-card-title", [
-                        _c("span", { staticClass: "headline" }, [
-                          _vm._v("Редактировать предмет")
-                        ]),
-                        _vm._v(" "),
-                        _c("p", { staticClass: "body-2" }, [
-                          _vm._v("Предметы помогают структурировать тесты")
-                        ])
-                      ]),
-                      _vm._v(" "),
-                      _c(
-                        "v-card-text",
-                        [
-                          _c("v-text-field", {
-                            attrs: {
-                              label: "Название предмета",
-                              hint:
-                                "Название должно быть узнаваемым и запоминающимся",
-                              rules: [_vm.rules.required],
-                              counter: 50
-                            },
-                            model: {
-                              value: _vm.editingForm.name,
-                              callback: function($$v) {
-                                _vm.$set(_vm.editingForm, "name", $$v)
-                              },
-                              expression: "editingForm.name"
-                            }
-                          })
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-card-actions",
-                        [
-                          _c("v-spacer"),
-                          _vm._v(" "),
-                          _c(
-                            "v-btn",
-                            {
-                              attrs: {
-                                flat: "",
-                                color: "primary",
-                                disabled: !_vm.editingForm.isValid
-                              },
-                              nativeOn: {
-                                click: function($event) {
-                                  _vm.updateSubject()
-                                }
-                              }
-                            },
-                            [_vm._v("Обновить")]
+                            [_vm._v(_vm._s(_vm.formActionBtn))]
                           )
                         ],
                         1
@@ -1404,6 +1409,23 @@ var render = function() {
             1
           )
         ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-btn",
+        {
+          attrs: {
+            fixed: "",
+            dark: "",
+            fab: "",
+            bottom: "",
+            right: "",
+            color: "indigo"
+          },
+          on: { click: _vm.toggleCreatingSubject }
+        },
+        [_c("v-icon", [_vm._v("add")])],
         1
       )
     ],
@@ -1527,7 +1549,7 @@ var render = function() {
         [
           _c(
             "v-flex",
-            { attrs: { xs4: "" } },
+            { attrs: { xs4: "", "offset-xs4": "" } },
             [
               _c(
                 "v-card",
@@ -1541,6 +1563,17 @@ var render = function() {
                   _c("v-card-text", [
                     _c("div", { staticClass: "body-2" }, [
                       _vm._v("ID: " + _vm._s(_vm.test.id))
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "body-2" }, [
+                      _vm._v(
+                        "Автор теста: " +
+                          _vm._s(_vm.test.author.last_name) +
+                          " " +
+                          _vm._s(_vm.test.author.first_name) +
+                          " " +
+                          _vm._s(_vm.test.author.middle_name)
+                      )
                     ]),
                     _vm._v(" "),
                     _c("div", { staticClass: "body-2" }, [
@@ -1559,16 +1592,89 @@ var render = function() {
                   _vm._v(" "),
                   _c(
                     "v-card-actions",
+                    { staticClass: "justify-end" },
                     [
                       _c(
-                        "v-btn",
-                        {
-                          attrs: {
-                            flat: "",
-                            hint: "Пока что это не работает :)"
-                          }
-                        },
-                        [_vm._v("Кнопка для чего-то")]
+                        "v-tooltip",
+                        { attrs: { bottom: "" } },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              staticClass: "mx-0",
+                              attrs: { slot: "activator", icon: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.toggleEditingSubject(_vm.test)
+                                }
+                              },
+                              slot: "activator"
+                            },
+                            [
+                              _c("v-icon", { attrs: { color: "green" } }, [
+                                _vm._v("edit")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c("span", [_vm._v("Редактировать")])
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-tooltip",
+                        { attrs: { bottom: "" } },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              staticClass: "mx-0",
+                              attrs: { slot: "activator", icon: "" },
+                              on: { click: _vm.toggleCreatingQuestion },
+                              slot: "activator"
+                            },
+                            [
+                              _c("v-icon", { attrs: { color: "blue" } }, [
+                                _vm._v("add_circle")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c("span", [_vm._v("Добавить вопрос")])
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-tooltip",
+                        { attrs: { bottom: "" } },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              staticClass: "mx-0",
+                              attrs: { slot: "activator", icon: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.deleteTest(_vm.test)
+                                }
+                              },
+                              slot: "activator"
+                            },
+                            [
+                              _c("v-icon", { attrs: { color: "red" } }, [
+                                _vm._v("delete")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c("span", [_vm._v("Удалить")])
+                        ],
+                        1
                       )
                     ],
                     1
@@ -1580,48 +1686,197 @@ var render = function() {
             1
           ),
           _vm._v(" "),
+          _c("v-flex", { attrs: { xs4: "" } }, [_c("v-card")], 1),
+          _vm._v(" "),
+          _vm._l(_vm.test.questions, function(question) {
+            return _c(
+              "v-flex",
+              { key: question.id, attrs: { xs3: "" } },
+              [
+                _c(
+                  "v-card",
+                  [
+                    _c("v-card-text", [
+                      _c("div", { staticClass: "body-2" }, [
+                        _vm._v(
+                          "Вопрос: " +
+                            _vm._s(question.body) +
+                            " (" +
+                            _vm._s(question.points) +
+                            ")"
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "body-2" }, [
+                        _vm._v("Ответ: " + _vm._s(question.answer))
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "v-card-actions",
+                      { staticClass: "justify-end" },
+                      [
+                        _c(
+                          "v-btn",
+                          { attrs: { flat: "", icon: "", color: "green" } },
+                          [_c("v-icon", [_vm._v("edit")])],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "v-btn",
+                          { attrs: { flat: "", icon: "", color: "red" } },
+                          [_c("v-icon", [_vm._v("delete")])],
+                          1
+                        )
+                      ],
+                      1
+                    )
+                  ],
+                  1
+                )
+              ],
+              1
+            )
+          }),
+          _vm._v(" "),
           _c(
-            "v-flex",
-            { attrs: { xs4: "" } },
+            "v-dialog",
+            {
+              attrs: { "max-width": "500px" },
+              model: {
+                value: _vm.form.isVisible,
+                callback: function($$v) {
+                  _vm.$set(_vm.form, "isVisible", $$v)
+                },
+                expression: "form.isVisible"
+              }
+            },
             [
               _c(
                 "v-card",
                 [
-                  _c("v-card-title", { attrs: { "primary-title": "" } }, [
-                    _c("div", { staticClass: "headline" }, [
-                      _vm._v(
-                        "Автор теста: " +
-                          _vm._s(_vm.test.author.last_name) +
-                          " " +
-                          _vm._s(_vm.test.author.first_name) +
-                          " " +
-                          _vm._s(_vm.test.author.middle_name)
-                      )
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("v-card-text", [
-                    _c("div", { staticClass: "body-2" }, [
-                      _vm._v("ID: " + _vm._s(_vm.test.author.id))
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "body-2" }, [
-                      _vm._v("Логин: " + _vm._s(_vm.test.author.login))
-                    ])
-                  ]),
-                  _vm._v(" "),
                   _c(
-                    "v-card-actions",
-                    [
-                      _c(
-                        "v-btn",
-                        {
-                          attrs: {
-                            flat: "",
-                            hint: "Пока что это не работает :)"
-                          }
+                    "v-form",
+                    {
+                      ref: "form",
+                      model: {
+                        value: _vm.form.isValid,
+                        callback: function($$v) {
+                          _vm.$set(_vm.form, "isValid", $$v)
                         },
-                        [_vm._v("Связаться")]
+                        expression: "form.isValid"
+                      }
+                    },
+                    [
+                      _c("v-card-title", [
+                        _c("span", { staticClass: "headline" }, [
+                          _vm._v(_vm._s(_vm.formCaption))
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-text",
+                        [
+                          _c("v-text-field", {
+                            attrs: {
+                              label: "Вопрос",
+                              required: "",
+                              textarea: "",
+                              rows: "7",
+                              hint: "В будущем здесь будет поддержка Markdown",
+                              rules: [_vm.rules.required]
+                            },
+                            model: {
+                              value: _vm.form.body,
+                              callback: function($$v) {
+                                _vm.$set(_vm.form, "body", $$v)
+                              },
+                              expression: "form.body"
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("v-text-field", {
+                            attrs: {
+                              label: "Ответ",
+                              required: "",
+                              hint:
+                                "В будущем здесь будет поддержка регулярных выражений",
+                              rules: [_vm.rules.required]
+                            },
+                            model: {
+                              value: _vm.form.answer,
+                              callback: function($$v) {
+                                _vm.$set(_vm.form, "answer", $$v)
+                              },
+                              expression: "form.answer"
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("v-text-field", {
+                            attrs: {
+                              label: "Баллы за вопрос",
+                              required: "",
+                              rules: [_vm.rules.required],
+                              type: "number"
+                            },
+                            model: {
+                              value: _vm.form.points,
+                              callback: function($$v) {
+                                _vm.$set(_vm.form, "points", $$v)
+                              },
+                              expression: "form.points"
+                            }
+                          })
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-actions",
+                        [
+                          _c("v-spacer"),
+                          _vm._v(" "),
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { color: "blue darken-1", flat: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.form.hide()
+                                }
+                              }
+                            },
+                            [_vm._v("Закрыть")]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { color: "blue darken-1", flat: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.form.reset()
+                                }
+                              }
+                            },
+                            [_vm._v("Сбросить")]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: {
+                                color: "blue darken-1",
+                                flat: "",
+                                disabled: !_vm.form.isValid
+                              },
+                              on: { click: _vm.formAction }
+                            },
+                            [_vm._v(_vm._s(_vm.formActionBtn))]
+                          )
+                        ],
+                        1
                       )
                     ],
                     1
@@ -1633,7 +1888,7 @@ var render = function() {
             1
           )
         ],
-        1
+        2
       )
     : _vm._e()
 }
@@ -1707,7 +1962,7 @@ var render = function() {
                                 },
                                 on: {
                                   click: function($event) {
-                                    _vm.toggleEditingSubject(props.item)
+                                    _vm.toggleEditingTest(props.item)
                                   }
                                 },
                                 slot: "activator"
@@ -1758,105 +2013,32 @@ var render = function() {
                           1
                         ),
                         _vm._v(" "),
-                        !props.expanded
-                          ? _c(
-                              "v-tooltip",
-                              { attrs: { bottom: "" } },
-                              [
-                                _c(
-                                  "v-btn",
-                                  {
-                                    staticClass: "mx-0",
-                                    attrs: { slot: "activator", icon: "" },
-                                    on: {
-                                      click: function($event) {
-                                        _vm.loadTest(props)
-                                      }
-                                    },
-                                    slot: "activator"
-                                  },
-                                  [
-                                    _c("v-icon", { attrs: { color: "blue" } }, [
-                                      _vm._v("expand_more")
-                                    ])
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c("span", [_vm._v("Открыть список вопросов")])
-                              ],
-                              1
-                            )
-                          : _c(
-                              "v-tooltip",
-                              { attrs: { bottom: "" } },
-                              [
-                                _c(
-                                  "v-btn",
-                                  {
-                                    staticClass: "mx-0",
-                                    attrs: { slot: "activator", icon: "" },
-                                    on: {
-                                      click: function($event) {
-                                        props.expanded = false
-                                      }
-                                    },
-                                    slot: "activator"
-                                  },
-                                  [
-                                    _c("v-icon", { attrs: { color: "blue" } }, [
-                                      _vm._v("expand_less")
-                                    ])
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c("span", [_vm._v("Закрыть список вопросов")])
-                              ],
-                              1
-                            )
-                      ],
-                      1
-                    )
-                  ]
-                }
-              },
-              {
-                key: "expand",
-                fn: function(props) {
-                  return [
-                    _c(
-                      "v-container",
-                      { attrs: { fluid: "", "grid-list-md": "" } },
-                      [
                         _c(
-                          "v-layout",
-                          { attrs: { row: "", wrap: "" } },
-                          _vm._l(props.item.questions, function(question) {
-                            return _c(
-                              "v-flex",
+                          "v-tooltip",
+                          { attrs: { bottom: "" } },
+                          [
+                            _c(
+                              "v-btn",
                               {
-                                key: question.id,
-                                attrs: { xs12: "", md6: "", lg4: "", xl3: "" }
+                                staticClass: "mx-0",
+                                attrs: {
+                                  slot: "activator",
+                                  icon: "",
+                                  to: "/tests/" + props.item.id
+                                },
+                                slot: "activator"
                               },
                               [
-                                _c(
-                                  "v-card",
-                                  [
-                                    _c("v-card-title", [
-                                      _c("h4", [_vm._v(_vm._s(question.body))])
-                                    ]),
-                                    _vm._v(" "),
-                                    _c("v-card-text", [
-                                      _vm._v(_vm._s(question.answer))
-                                    ])
-                                  ],
-                                  1
-                                )
+                                _c("v-icon", { attrs: { color: "blue" } }, [
+                                  _vm._v("chevron_right")
+                                ])
                               ],
                               1
-                            )
-                          })
+                            ),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("Подробнее")])
+                          ],
+                          1
                         )
                       ],
                       1
@@ -1865,59 +2047,47 @@ var render = function() {
                 }
               }
             ])
-          }),
-          _vm._v(" "),
+          })
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-flex",
+        { attrs: { xs12: "" } },
+        [
           _c(
             "v-dialog",
             {
               attrs: { "max-width": "500px" },
               model: {
-                value: _vm.creatingForm.isVisible,
+                value: _vm.form.isVisible,
                 callback: function($$v) {
-                  _vm.$set(_vm.creatingForm, "isVisible", $$v)
+                  _vm.$set(_vm.form, "isVisible", $$v)
                 },
-                expression: "creatingForm.isVisible"
+                expression: "form.isVisible"
               }
             },
             [
-              _c(
-                "v-btn",
-                {
-                  attrs: {
-                    slot: "activator",
-                    fixed: "",
-                    dark: "",
-                    fab: "",
-                    bottom: "",
-                    right: "",
-                    color: "indigo"
-                  },
-                  on: { click: _vm.loadSubjects },
-                  slot: "activator"
-                },
-                [_c("v-icon", [_vm._v("add")])],
-                1
-              ),
-              _vm._v(" "),
               _c(
                 "v-card",
                 [
                   _c(
                     "v-form",
                     {
-                      ref: "createForm",
+                      ref: "form",
                       model: {
-                        value: _vm.creatingForm.isValid,
+                        value: _vm.form.isValid,
                         callback: function($$v) {
-                          _vm.$set(_vm.creatingForm, "isValid", $$v)
+                          _vm.$set(_vm.form, "isValid", $$v)
                         },
-                        expression: "creatingForm.isValid"
+                        expression: "form.isValid"
                       }
                     },
                     [
                       _c("v-card-title", [
                         _c("span", { staticClass: "headline" }, [
-                          _vm._v("Новая заготовка для теста")
+                          _vm._v(_vm._s(_vm.formCaption))
                         ]),
                         _vm._v(" "),
                         _c("p", { staticClass: "body-2" }, [
@@ -1940,11 +2110,11 @@ var render = function() {
                               counter: 50
                             },
                             model: {
-                              value: _vm.creatingForm.name,
+                              value: _vm.form.name,
                               callback: function($$v) {
-                                _vm.$set(_vm.creatingForm, "name", $$v)
+                                _vm.$set(_vm.form, "name", $$v)
                               },
-                              expression: "creatingForm.name"
+                              expression: "form.name"
                             }
                           }),
                           _vm._v(" "),
@@ -1958,15 +2128,11 @@ var render = function() {
                               type: "number"
                             },
                             model: {
-                              value: _vm.creatingForm.questions_count,
+                              value: _vm.form.questions_count,
                               callback: function($$v) {
-                                _vm.$set(
-                                  _vm.creatingForm,
-                                  "questions_count",
-                                  $$v
-                                )
+                                _vm.$set(_vm.form, "questions_count", $$v)
                               },
-                              expression: "creatingForm.questions_count"
+                              expression: "form.questions_count"
                             }
                           }),
                           _vm._v(" "),
@@ -1980,11 +2146,11 @@ var render = function() {
                               "item-text": "name"
                             },
                             model: {
-                              value: _vm.creatingForm.subject_id,
+                              value: _vm.form.subject_id,
                               callback: function($$v) {
-                                _vm.$set(_vm.creatingForm, "subject_id", $$v)
+                                _vm.$set(_vm.form, "subject_id", $$v)
                               },
-                              expression: "creatingForm.subject_id"
+                              expression: "form.subject_id"
                             }
                           })
                         ],
@@ -2002,7 +2168,7 @@ var render = function() {
                               attrs: { color: "blue darken-1", flat: "" },
                               on: {
                                 click: function($event) {
-                                  _vm.creatingForm.hide()
+                                  _vm.form.hide()
                                 }
                               }
                             },
@@ -2015,7 +2181,7 @@ var render = function() {
                               attrs: { color: "blue darken-1", flat: "" },
                               on: {
                                 click: function($event) {
-                                  _vm.creatingForm.reset()
+                                  _vm.form.reset()
                                 }
                               }
                             },
@@ -2028,11 +2194,11 @@ var render = function() {
                               attrs: {
                                 color: "blue darken-1",
                                 flat: "",
-                                disabled: !_vm.creatingForm.isValid
+                                disabled: !_vm.form.isValid
                               },
-                              on: { click: _vm.createTest }
+                              on: { click: _vm.formAction }
                             },
-                            [_vm._v("Создать")]
+                            [_vm._v(_vm._s(_vm.formActionBtn))]
                           )
                         ],
                         1
@@ -2047,6 +2213,23 @@ var render = function() {
             1
           )
         ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-btn",
+        {
+          attrs: {
+            fixed: "",
+            dark: "",
+            fab: "",
+            bottom: "",
+            right: "",
+            color: "indigo"
+          },
+          on: { click: _vm.toggleCreatingTest }
+        },
+        [_c("v-icon", [_vm._v("add")])],
         1
       )
     ],
@@ -2510,6 +2693,13 @@ var Form = function () {
 				data[property] = this[property];
 			}
 			return data;
+		}
+	}, {
+		key: "setData",
+		value: function setData(data) {
+			for (var property in this.originalData) {
+				this[property] = data[property];
+			}
 		}
 	}, {
 		key: "reset",

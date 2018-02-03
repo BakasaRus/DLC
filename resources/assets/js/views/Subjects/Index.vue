@@ -11,7 +11,7 @@
 			expand
 		>
 			<template slot="items" slot-scope="props">
-				<tr @click="loadSubject(props)">
+				<tr>
 					<td>{{ props.item.id }}</td>
 					<td>{{ props.item.name }}</td>
 					<td>{{ props.item.author.first_name }} {{ props.item.author.last_name }}</td>
@@ -39,56 +39,33 @@
 				</tr>
 			</template>
 		</v-data-table>
-		<v-dialog v-model="creatingForm.isVisible" max-width="500px">
-			<v-btn fixed dark fab bottom right color="indigo" slot="activator">
-				<v-icon>add</v-icon>
-			</v-btn>
+		<v-dialog v-model="form.isVisible" max-width="500px">
 			<v-card>
-				<v-form v-model="creatingForm.isValid" ref="createForm">
+				<v-form v-model="form.isValid" ref="form">
 				<v-card-title>
-					<span class="headline">Новый предмет</span>
+					<span class="headline">{{ formCaption }}</span>
 					<p class="body-2">Предметы помогают структурировать тесты</p>
 				</v-card-title>
 				<v-card-text>
 					<v-text-field 
 						label="Название предмета" 
 						hint="Название должно быть узнаваемым и запоминающимся"
-						v-model="creatingForm.name" 
+						v-model="form.name" 
 						:rules="[rules.required]"
 						:counter="50"
 						></v-text-field>
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer></v-spacer>
-					<v-btn flat color="primary" @click.native="createSubject()" :disabled="!creatingForm.isValid">Добавить</v-btn>
-				</v-card-actions>
-			</v-form>
-			</v-card>
-		</v-dialog>
-		<v-dialog v-model="editingForm.isVisible" max-width="500px">
-			<v-card>
-				<v-form v-model="editingForm.isValid" ref="editForm">
-				<v-card-title>
-					<span class="headline">Редактировать предмет</span>
-					<p class="body-2">Предметы помогают структурировать тесты</p>
-				</v-card-title>
-				<v-card-text>
-					<v-text-field 
-						label="Название предмета" 
-						hint="Название должно быть узнаваемым и запоминающимся"
-						v-model="editingForm.name" 
-						:rules="[rules.required]"
-						:counter="50"
-						></v-text-field>
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer></v-spacer>
-					<v-btn flat color="primary" @click.native="updateSubject()" :disabled="!editingForm.isValid">Обновить</v-btn>
+					<v-btn flat color="primary" @click.native="formAction" :disabled="!form.isValid">{{ formActionBtn }}</v-btn>
 				</v-card-actions>
 			</v-form>
 			</v-card>
 		</v-dialog>
 	</v-flex>
+	<v-btn fixed dark fab bottom right color="indigo" @click="toggleCreatingSubject">
+		<v-icon>add</v-icon>
+	</v-btn>
 </v-layout>
 </template>
 
@@ -96,12 +73,10 @@
 	export default {
 		data: () => ({
 			subjects: [],
-			creatingForm: new window.Form({
+			form: new window.Form({
 				name: ''
 			}),
-			editingForm: new window.Form({
-				name: ''
-			}),
+			editing: false,
 			loading: false,
 			rules: {
 				required: (value) => !!value || 'Это поле обязательно для заполнения'
@@ -116,9 +91,18 @@
 		}),
 
 		mounted() {
-			this.creatingForm.ref = this.$refs.createForm;
-			this.editingForm.ref = this.$refs.editForm;
+			this.form.ref = this.$refs.form;
 			this.loadSubjects();
+		},
+
+		computed: {
+			formCaption() {
+				return this.editing ? 'Изменение предмета' : 'Создание предмета';
+			},
+
+			formActionBtn() {
+				return this.editing ? 'Сохранить' : 'Добавить';
+			}
 		},
 
 		methods: {
@@ -135,17 +119,30 @@
 					});
 			},
 
+			formAction() {
+				if (this.editing) this.updateSubject();
+				else this.createSubject();
+			},
+
 			toggleEditingSubject(subject) {
-				this.editingForm.name = subject.name;
-				this.editingForm.id = subject.id;
-				this.editingForm.show();
+				this.form.name = subject.name;
+				this.form.id = subject.id;
+				this.editing = true;
+				this.form.show();
+			},
+
+			toggleCreatingSubject() {
+				this.form.reset();
+				this.editing = false;
+				this.form.show();
 			},
 
 			updateSubject() {
-				window.axios.delete('/api/subjects/' + this.editingForm.id, this.editingForm.data())
+				window.axios.patch('/api/subjects/' + this.form.id, this.form.data())
 					.then(response => {
 						console.log(response.data);
 						this.loadSubjects();
+						this.form.hide();
 					})
 					.catch(error => {
 						console.log(error.data);
@@ -164,10 +161,10 @@
 			},
 
 			createSubject() {
-				window.axios.post('/api/subjects', this.creatingForm.data())
+				window.axios.post('/api/subjects', this.form.data())
 					.then(response => {
-						this.creatingForm.hide();
-						this.creatingForm.reset();
+						this.form.hide();
+						this.form.reset();
 						this.loadSubjects();
 					})
 					.catch(error => {

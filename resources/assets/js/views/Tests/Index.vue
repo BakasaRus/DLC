@@ -15,7 +15,7 @@
 				<td>{{ props.item.created_at.date | readable }}</td>
 				<td>
 					<v-tooltip bottom>
-						<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="toggleEditingSubject(props.item)" slot="activator">
+						<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="toggleEditingTest(props.item)" slot="activator">
 							<v-icon color="green">edit</v-icon>
 						</v-btn>
 						<span>Редактировать</span>
@@ -26,50 +26,22 @@
 						</v-btn>
 						<span>Удалить</span>
 					</v-tooltip>
-					<v-tooltip bottom v-if="!props.expanded">
-						<v-btn icon class="mx-0" @click="loadTest(props)" slot="activator">
-							<v-icon color="blue">expand_more</v-icon>
+					<v-tooltip bottom>
+						<v-btn icon class="mx-0" :to="'/tests/' + props.item.id" slot="activator">
+							<v-icon color="blue">chevron_right</v-icon>
 						</v-btn>
-						<span>Открыть список вопросов</span>
-					</v-tooltip>
-					<v-tooltip bottom v-else>
-						<v-btn icon class="mx-0" @click="props.expanded = false" slot="activator">
-							<v-icon color="blue">expand_less</v-icon>
-						</v-btn>
-						<span>Закрыть список вопросов</span>
+						<span>Подробнее</span>
 					</v-tooltip>
 				</td>
 			</template>
-			<template slot="expand" slot-scope="props">
-				<v-container fluid grid-list-md>
-					<v-layout row wrap>
-						<v-flex	xs12 md6 lg4 xl3 v-for="question in props.item.questions" :key="question.id">
-							<v-card>
-								<v-card-title><h4>{{ question.body }}</h4></v-card-title>
-								<v-card-text>{{ question.answer }}</v-card-text>
-							</v-card>
-						</v-flex>
-					</v-layout>
-				</v-container>
-			</template>
 		</v-data-table>
-		<v-dialog v-model="creatingForm.isVisible" max-width="500px">
-			<v-btn
-				fixed
-				dark
-				fab
-				bottom
-				right
-				color="indigo"
-				slot="activator"
-				@click="loadSubjects"
-			>
-				<v-icon>add</v-icon>
-			</v-btn>
+	</v-flex>
+	<v-flex xs12>
+		<v-dialog v-model="form.isVisible" max-width="500px">
 			<v-card>
-				<v-form ref="createForm" v-model="creatingForm.isValid">
+				<v-form ref="form" v-model="form.isValid">
 				<v-card-title>
-					<span class="headline">Новая заготовка для теста</span>
+					<span class="headline">{{ formCaption }}</span>
 					<p class="body-2">Непосредственно вопросы можно будет добавить потом или импортировать в формате CSV</p>
 				</v-card-title>
 				<v-card-text>
@@ -77,7 +49,7 @@
 						label="Название теста" 
 						required
 						hint="Название должно быть узнаваемым и запоминающимся"
-						v-model="creatingForm.name" 
+						v-model="form.name" 
 						:rules="[rules.required]"
 						:counter="50"
 					></v-text-field>
@@ -85,7 +57,7 @@
 						label="Количество вопросов" 
 						required
 						hint="Если вопросов будет меньше, чем здесь указано, то тест не будет отображаться в любом случае. Если вопросов будет больше, то они будут выбираться случайным образом"
-						v-model="creatingForm.questions_count" 
+						v-model="form.questions_count" 
 						:rules="[rules.required]"
 						type="number"
 					></v-text-field>
@@ -96,19 +68,22 @@
 						:items="subjects"
 						item-value="id"
 						item-text="name"
-						v-model="creatingForm.subject_id"
+						v-model="form.subject_id"
 					></v-select>
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer></v-spacer>
-					<v-btn color="blue darken-1" flat @click="creatingForm.hide()">Закрыть</v-btn>
-					<v-btn color="blue darken-1" flat @click="creatingForm.reset()">Сбросить</v-btn>
-					<v-btn color="blue darken-1" flat @click="createTest" :disabled="!creatingForm.isValid">Создать</v-btn>
+					<v-btn color="blue darken-1" flat @click="form.hide()">Закрыть</v-btn>
+					<v-btn color="blue darken-1" flat @click="form.reset()">Сбросить</v-btn>
+					<v-btn color="blue darken-1" flat @click="formAction" :disabled="!form.isValid">{{ formActionBtn }}</v-btn>
 				</v-card-actions>
 			</v-form>
 			</v-card>
 		</v-dialog>
 	</v-flex>
+	<v-btn fixed dark fab bottom right color="indigo" @click="toggleCreatingTest">
+		<v-icon>add</v-icon>
+	</v-btn>
 </v-layout>
 </template>
 
@@ -117,12 +92,14 @@
 		data: () => ({
 			tests: [],
 			subjects: [],
-			creatingForm: new window.Form({
+			form: new window.Form({
 				name: '',
 				subject_id: 0,
-				questions_count: ''
+				questions_count: '',
+				id: 0
 			}),
 			loading: false,
+			editing: false,
 			rules: {
 				required: (value) => !!value || 'Это поле обязательно для заполнения'
 			},
@@ -136,8 +113,17 @@
 		}),
 
 		mounted() {
-			this.creatingForm.ref = this.$refs.createForm;
+			this.form.ref = this.$refs.form;
 			this.loadTests();
+		},
+
+		computed: {
+			formCaption() {
+				return this.editing ? 'Изменение теста' : 'Создание теста';
+			},
+			formActionBtn() {
+				return this.editing ? 'Сохранить' : 'Добавить';
+			}
 		},
 
 		methods: {
@@ -155,17 +141,50 @@
 			},
 
 			createTest() {
-				if (this.creatingForm.validate()) {
-					window.axios.post('/api/tests', this.creatingForm.data())
+				if (this.form.validate()) {
+					window.axios.post('/api/tests', this.form.data())
 						.then(response => {
-							this.creatingForm.hide();
-							this.creatingForm.reset();
+							this.form.hide();
+							this.form.reset();
 							this.loadTests();
 						})
 						.catch(error => {
 							console.log(error.data);
 						});
 				}
+			},
+
+			updateTest() {
+				if (this.form.validate()) {
+					window.axios.patch('/api/tests/' + this.form.id, this.form.data())
+						.then(response => {
+							this.loadTests();
+							this.form.hide();
+							this.form.reset();
+						})
+						.catch(error => {
+							console.log(error.data);
+						});
+				}
+			},
+
+			formAction() {
+				if (this.editing) this.updateTest();
+				else this.createTest();
+			},
+
+			toggleCreatingTest() {
+				this.loadSubjects();
+				this.editing = false;
+				this.form.reset();
+				this.form.show();
+			},
+
+			toggleEditingTest(test) {
+				this.loadSubjects();
+				this.editing = true;
+				this.form.setData(test);
+				this.form.show();
 			},
 
 			loadSubjects() {
@@ -176,21 +195,6 @@
 
 			isAuthor(subject) {
 				return subject.author_id == this.$root.user.id;
-			},
-
-			loadTest(props) {
-				this.loading = true;
-				var index = this.tests.map(function (test) { return test.id; }).indexOf(props.item.id);
-				window.axios.get('/api/tests/' + props.item.id)
-					.then(response => {
-						this.tests[index] = response.data.data;
-						props.expanded = true;
-						this.loading = false;
-					})
-					.catch(error => {
-						console.log(error);
-						this.loading = false;
-					});
 			}
 		},
 

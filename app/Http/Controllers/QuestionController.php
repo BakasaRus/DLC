@@ -12,4 +12,16 @@ class QuestionController extends Controller
     {
     	return Questions::collection(Question::all());
     }
+
+    public function store()
+    {
+    	$validated = request()->validate([
+    		'body' => 'required',
+    		'answer' => 'required',
+    		'points' => 'required|integer|min:1',
+    		'test_id' => 'required|exists:tests,id'
+    	]);
+    	\Auth::guard('api')->user()->createdQuestions()->create($validated);
+    	return ['message' => 'Success!'];
+    }
 }

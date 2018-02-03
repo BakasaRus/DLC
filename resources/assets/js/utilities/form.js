@@ -17,6 +17,12 @@ class Form {
 		return data;
 	}
 
+	setData(data) {
+		for (let property in this.originalData) {
+			this[property] = data[property];
+		}
+	}
+
 	reset() {
 		this.ref.reset();
 	}
