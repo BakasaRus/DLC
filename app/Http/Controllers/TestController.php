@@ -20,7 +20,7 @@ class TestController extends Controller
 
 	public function show(Test $test)
 	{
-		return new Tests($test);
+		return new Tests($test->load(['questions', 'author']));
 	}
 
 	public function store(Request $request)

@@ -15,12 +15,12 @@ class SubjectController extends Controller
 	
 	public function index()
 	{
-		return Subjects::collection(Subject::all());
+		return Subjects::collection(Subject::with('author')->get());
 	}
 
 	public function show(Subject $subject)
 	{
-		return new Subjects($subject);
+		return new Subjects($subject->load('author'));
 	}
 
 	public function store(Request $request)

@@ -2,7 +2,7 @@
 <v-layout row wrap justify-center align-center>
 	<v-flex xs12>
 		<v-data-table
-			v-bind:headers="headers"
+			:headers="headers"
 			:items="tests"
 			hide-actions
 			class="elevation-1"
@@ -11,9 +11,8 @@
 			<template slot="items" slot-scope="props">
 				<td>{{ props.item.id }}</td>
 				<td>{{ props.item.name }}</td>
-				<td>{{ props.item.author.first_name }} {{ props.item.author.last_name }}</td>
 				<td>{{ props.item.subject.name }}</td>
-				<td>{{ props.item.created_at | readable }}</td>
+				<td>{{ props.item.created_at.date | readable }}</td>
 				<td>
 					<v-tooltip bottom>
 						<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="toggleEditingSubject(props.item)" slot="activator">
@@ -27,13 +26,31 @@
 						</v-btn>
 						<span>Удалить</span>
 					</v-tooltip>
-					<v-tooltip bottom>
-						<v-btn icon class="mx-0" :to="'/tests/' + props.item.id" slot="activator">
-							<v-icon color="blue">keyboard_arrow_right</v-icon>
+					<v-tooltip bottom v-if="!props.expanded">
+						<v-btn icon class="mx-0" @click="loadTest(props)" slot="activator">
+							<v-icon color="blue">expand_more</v-icon>
 						</v-btn>
-						<span>Подробнее</span>
+						<span>Открыть список вопросов</span>
+					</v-tooltip>
+					<v-tooltip bottom v-else>
+						<v-btn icon class="mx-0" @click="props.expanded = false" slot="activator">
+							<v-icon color="blue">expand_less</v-icon>
+						</v-btn>
+						<span>Закрыть список вопросов</span>
 					</v-tooltip>
 				</td>
+			</template>
+			<template slot="expand" slot-scope="props">
+				<v-container fluid grid-list-md>
+					<v-layout row wrap>
+						<v-flex	xs12 md6 lg4 xl3 v-for="question in props.item.questions" :key="question.id">
+							<v-card>
+								<v-card-title><h4>{{ question.body }}</h4></v-card-title>
+								<v-card-text>{{ question.answer }}</v-card-text>
+							</v-card>
+						</v-flex>
+					</v-layout>
+				</v-container>
 			</template>
 		</v-data-table>
 		<v-dialog v-model="creatingForm.isVisible" max-width="500px">
@@ -112,7 +129,6 @@
 			headers: [
 				{ text: 'ID', value: 'id', align: 'left' },
 				{ text: 'Название теста', value: 'name', align: 'left' },
-				{ text: 'Автор', value: 'author_id', align: 'left' },
 				{ text: 'Предмет', value: 'subject.name', align: 'left' },
 				{ text: 'Дата создания', value: 'created_at', align: 'left' },
 				{ text: 'Действия', value: 'name', align: 'left', sortable: false },
@@ -159,7 +175,22 @@
 			},
 
 			isAuthor(subject) {
-				return subject.author.id == this.$root.user.id;
+				return subject.author_id == this.$root.user.id;
+			},
+
+			loadTest(props) {
+				this.loading = true;
+				var index = this.tests.map(function (test) { return test.id; }).indexOf(props.item.id);
+				window.axios.get('/api/tests/' + props.item.id)
+					.then(response => {
+						this.tests[index] = response.data.data;
+						props.expanded = true;
+						this.loading = false;
+					})
+					.catch(error => {
+						console.log(error);
+						this.loading = false;
+					});
 			}
 		},
 

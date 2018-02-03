@@ -29,3 +29,6 @@ Route::delete('/subjects/{subject}', 'SubjectController@delete');
 Route::get('/tests', 'TestController@index');
 Route::get('/tests/{test}', 'TestController@show');
 Route::post('/tests', 'TestController@store');
+
+Route::get('/questions', 'QuestionController@index');
+Route::get('/questions/{user}', 'QuestionController@show');

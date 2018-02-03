@@ -8,32 +8,35 @@
 			class="elevation-1"
 			no-data-text="Пока что тут ничего нет."
 			:loading="loading"
+			expand
 		>
 			<template slot="items" slot-scope="props">
-				<td>{{ props.item.id }}</td>
-				<td>{{ props.item.name }}</td>
-				<td>{{ props.item.author.first_name }} {{ props.item.author.last_name }}</td>
-				<td>{{ props.item.created_at | readable }}</td>
-				<td>
-					<v-tooltip bottom>
-						<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="toggleEditingSubject(props.item)" slot="activator">
-							<v-icon color="green">edit</v-icon>
-						</v-btn>
-						<span>Редактировать</span>
-					</v-tooltip>
-					<v-tooltip bottom>
-						<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="deleteSubject(props.item)" slot="activator">
-							<v-icon color="red">delete</v-icon>
-						</v-btn>
-						<span>Удалить</span>
-					</v-tooltip>
-					<v-tooltip bottom>
-						<v-btn icon class="mx-0" :to="'/subjects/' + props.item.id" slot="activator">
-							<v-icon color="blue">keyboard_arrow_right</v-icon>
-						</v-btn>
-						<span>Подробнее</span>
-					</v-tooltip>
-				</td>
+				<tr @click="loadSubject(props)">
+					<td>{{ props.item.id }}</td>
+					<td>{{ props.item.name }}</td>
+					<td>{{ props.item.author.first_name }} {{ props.item.author.last_name }}</td>
+					<td>{{ props.item.created_at.date | readable }}</td>
+					<td>
+						<v-tooltip bottom>
+							<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="toggleEditingSubject(props.item)" slot="activator">
+								<v-icon color="green">edit</v-icon>
+							</v-btn>
+							<span>Редактировать</span>
+						</v-tooltip>
+						<v-tooltip bottom>
+							<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="deleteSubject(props.item)" slot="activator">
+								<v-icon color="red">delete</v-icon>
+							</v-btn>
+							<span>Удалить</span>
+						</v-tooltip>
+						<v-tooltip bottom>
+							<v-btn icon class="mx-0" :disabled="true" slot="activator">
+								<v-icon color="blue">expand_more</v-icon>
+							</v-btn>
+							<span>Подробнее (оставлено на будущее, вдруг пригодится)</span>
+						</v-tooltip>
+					</td>
+				</tr>
 			</template>
 		</v-data-table>
 		<v-dialog v-model="creatingForm.isVisible" max-width="500px">
@@ -106,8 +109,8 @@
 			headers: [
 				{ text: 'ID', value: 'id', align: 'left' },
 				{ text: 'Предмет', value: 'name', align: 'left' },
-				{ text: 'Куратор', value: 'author_id', align: 'left' },
-				{ text: 'Дата создания', value: 'created_at', align: 'left' },
+				{ text: 'Куратор курса', value: 'author_id', align: 'left' },
+				{ text: 'Дата создания', value: 'created_at.date', align: 'left' },
 				{ text: 'Действия', value: 'name', align: 'left', sortable: false },
 			]
 		}),
@@ -173,7 +176,7 @@
 			},
 
 			isAuthor(subject) {
-				return subject.author.id == this.$root.user.id;
+				return subject.author_id == this.$root.user.id;
 			}
 		},
 

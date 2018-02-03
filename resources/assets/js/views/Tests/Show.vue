@@ -1,5 +1,5 @@
 <template>
-<v-layout row wrap justify-center align-center v-if="Object.keys(test).length">
+<v-layout row wrap justify-center align-center :fill-height="true" v-if="Object.keys(test).length">
 	<v-flex xs4>
 		<v-card>
 			<v-card-title primary-title>
@@ -8,9 +8,10 @@
 			<v-card-text>
 				<div class="body-2">ID: {{ test.id }}</div>
 				<div class="body-2">Количество вопросов: {{ test.questions_count }}</div>
+				<div class="body-2">Всего вопросов: {{ test.questions.length }}</div>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn flat hint="Пока что это не работает :)">Связаться</v-btn>
+				<v-btn flat hint="Пока что это не работает :)">Кнопка для чего-то</v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-flex>
@@ -28,19 +29,6 @@
 			</v-card-actions>
 		</v-card>
 	</v-flex>
-	<v-flex xs4>
-		<v-card>
-			<v-card-title primary-title>
-				<div class="headline">Предмет: {{ test.subject.name }}</div>
-			</v-card-title>
-			<v-card-text>
-				<div class="body-2">ID: {{ test.subject.id }}</div>
-			</v-card-text>
-			<v-card-actions>
-				<v-btn flat hint="Пока что это не работает :)">Посмотреть все тесты</v-btn>
-			</v-card-actions>
-		</v-card>
-	</v-flex>
 </v-layout>
 </template>
 
@@ -54,6 +42,7 @@
 			window.axios.get('/api/tests/' + this.$route.params.id)
 				.then(response => {
 					this.test = response.data.data;
+					console.log('Success!');
 				})
 				.catch(error => {
 					console.log(error);

@@ -3,9 +3,8 @@
 namespace DLC\Http\Resources;
 
 use Illuminate\Http\Resources\Json\Resource;
-use DLC\User;
 
-class Subjects extends Resource
+class Questions extends Resource
 {
 	/**
 	 * Transform the resource into an array.
@@ -17,9 +16,13 @@ class Subjects extends Resource
 	{
 		return [
 			'id' => $this->id,
-			'name' => $this->name,
+			'body' => $this->body,
+			'answer' => $this->answer,
+			'points' => $this->points,
 			'author_id' => $this->author_id,
 			'author' => new Users($this->whenLoaded('author')),
+			'test_id' => $this->test_id,
+			'test' => new Tests($this->whenLoaded('test')),
 			'created_at' => $this->created_at
 		];
 	}

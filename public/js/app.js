@@ -258,6 +258,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
@@ -275,7 +278,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 					return !!value || 'Это поле обязательно для заполнения';
 				}
 			},
-			headers: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Предмет', value: 'name', align: 'left' }, { text: 'Куратор', value: 'author_id', align: 'left' }, { text: 'Дата создания', value: 'created_at', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }]
+			headers: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Предмет', value: 'name', align: 'left' }, { text: 'Куратор курса', value: 'author_id', align: 'left' }, { text: 'Дата создания', value: 'created_at.date', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }]
 		};
 	},
 
@@ -336,7 +339,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			});
 		},
 		isAuthor: function isAuthor(subject) {
-			return subject.author.id == this.$root.user.id;
+			return subject.author_id == this.$root.user.id;
 		}
 	},
 
@@ -496,6 +499,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
@@ -513,7 +533,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 					return !!value || 'Это поле обязательно для заполнения';
 				}
 			},
-			headers: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Название теста', value: 'name', align: 'left' }, { text: 'Автор', value: 'author_id', align: 'left' }, { text: 'Предмет', value: 'subject.name', align: 'left' }, { text: 'Дата создания', value: 'created_at', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }]
+			headers: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Название теста', value: 'name', align: 'left' }, { text: 'Предмет', value: 'subject.name', align: 'left' }, { text: 'Дата создания', value: 'created_at', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }]
 		};
 	},
 
@@ -559,7 +579,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			});
 		},
 		isAuthor: function isAuthor(subject) {
-			return subject.author.id == this.$root.user.id;
+			return subject.author_id == this.$root.user.id;
+		},
+		loadTest: function loadTest(props) {
+			var _this4 = this;
+
+			this.loading = true;
+			var index = this.tests.map(function (test) {
+				return test.id;
+			}).indexOf(props.item.id);
+			window.axios.get('/api/tests/' + props.item.id).then(function (response) {
+				_this4.tests[index] = response.data.data;
+				props.expanded = true;
+				_this4.loading = false;
+			}).catch(function (error) {
+				console.log(error);
+				_this4.loading = false;
+			});
 		}
 	},
 
@@ -611,18 +647,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
@@ -636,6 +660,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 		window.axios.get('/api/tests/' + this.$route.params.id).then(function (response) {
 			_this.test = response.data.data;
+			console.log('Success!');
 		}).catch(function (error) {
 			console.log(error);
 		});
@@ -1018,127 +1043,150 @@ var render = function() {
               items: _vm.subjects,
               "hide-actions": "",
               "no-data-text": "Пока что тут ничего нет.",
-              loading: _vm.loading
+              loading: _vm.loading,
+              expand: ""
             },
             scopedSlots: _vm._u([
               {
                 key: "items",
                 fn: function(props) {
                   return [
-                    _c("td", [_vm._v(_vm._s(props.item.id))]),
-                    _vm._v(" "),
-                    _c("td", [_vm._v(_vm._s(props.item.name))]),
-                    _vm._v(" "),
-                    _c("td", [
-                      _vm._v(
-                        _vm._s(props.item.author.first_name) +
-                          " " +
-                          _vm._s(props.item.author.last_name)
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("td", [
-                      _vm._v(_vm._s(_vm._f("readable")(props.item.created_at)))
-                    ]),
-                    _vm._v(" "),
                     _c(
-                      "td",
+                      "tr",
+                      {
+                        on: {
+                          click: function($event) {
+                            _vm.loadSubject(props)
+                          }
+                        }
+                      },
                       [
-                        _c(
-                          "v-tooltip",
-                          { attrs: { bottom: "" } },
-                          [
-                            _c(
-                              "v-btn",
-                              {
-                                staticClass: "mx-0",
-                                attrs: {
-                                  slot: "activator",
-                                  icon: "",
-                                  disabled: !_vm.isAuthor(props.item)
-                                },
-                                on: {
-                                  click: function($event) {
-                                    _vm.toggleEditingSubject(props.item)
-                                  }
-                                },
-                                slot: "activator"
-                              },
-                              [
-                                _c("v-icon", { attrs: { color: "green" } }, [
-                                  _vm._v("edit")
-                                ])
-                              ],
-                              1
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("Редактировать")])
-                          ],
-                          1
-                        ),
+                        _c("td", [_vm._v(_vm._s(props.item.id))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(props.item.name))]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v(
+                            _vm._s(props.item.author.first_name) +
+                              " " +
+                              _vm._s(props.item.author.last_name)
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v(
+                            _vm._s(
+                              _vm._f("readable")(props.item.created_at.date)
+                            )
+                          )
+                        ]),
                         _vm._v(" "),
                         _c(
-                          "v-tooltip",
-                          { attrs: { bottom: "" } },
+                          "td",
                           [
                             _c(
-                              "v-btn",
-                              {
-                                staticClass: "mx-0",
-                                attrs: {
-                                  slot: "activator",
-                                  icon: "",
-                                  disabled: !_vm.isAuthor(props.item)
-                                },
-                                on: {
-                                  click: function($event) {
-                                    _vm.deleteSubject(props.item)
-                                  }
-                                },
-                                slot: "activator"
-                              },
+                              "v-tooltip",
+                              { attrs: { bottom: "" } },
                               [
-                                _c("v-icon", { attrs: { color: "red" } }, [
-                                  _vm._v("delete")
-                                ])
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "mx-0",
+                                    attrs: {
+                                      slot: "activator",
+                                      icon: "",
+                                      disabled: !_vm.isAuthor(props.item)
+                                    },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.toggleEditingSubject(props.item)
+                                      }
+                                    },
+                                    slot: "activator"
+                                  },
+                                  [
+                                    _c(
+                                      "v-icon",
+                                      { attrs: { color: "green" } },
+                                      [_vm._v("edit")]
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("span", [_vm._v("Редактировать")])
                               ],
                               1
                             ),
                             _vm._v(" "),
-                            _c("span", [_vm._v("Удалить")])
-                          ],
-                          1
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "v-tooltip",
-                          { attrs: { bottom: "" } },
-                          [
                             _c(
-                              "v-btn",
-                              {
-                                staticClass: "mx-0",
-                                attrs: {
-                                  slot: "activator",
-                                  icon: "",
-                                  to: "/subjects/" + props.item.id
-                                },
-                                slot: "activator"
-                              },
+                              "v-tooltip",
+                              { attrs: { bottom: "" } },
                               [
-                                _c("v-icon", { attrs: { color: "blue" } }, [
-                                  _vm._v("keyboard_arrow_right")
-                                ])
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "mx-0",
+                                    attrs: {
+                                      slot: "activator",
+                                      icon: "",
+                                      disabled: !_vm.isAuthor(props.item)
+                                    },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.deleteSubject(props.item)
+                                      }
+                                    },
+                                    slot: "activator"
+                                  },
+                                  [
+                                    _c("v-icon", { attrs: { color: "red" } }, [
+                                      _vm._v("delete")
+                                    ])
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("span", [_vm._v("Удалить")])
                               ],
                               1
                             ),
                             _vm._v(" "),
-                            _c("span", [_vm._v("Подробнее")])
+                            _c(
+                              "v-tooltip",
+                              { attrs: { bottom: "" } },
+                              [
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "mx-0",
+                                    attrs: {
+                                      slot: "activator",
+                                      icon: "",
+                                      disabled: true
+                                    },
+                                    slot: "activator"
+                                  },
+                                  [
+                                    _c("v-icon", { attrs: { color: "blue" } }, [
+                                      _vm._v("expand_more")
+                                    ])
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("span", [
+                                  _vm._v(
+                                    "Подробнее (оставлено на будущее, вдруг пригодится)"
+                                  )
+                                ])
+                              ],
+                              1
+                            )
                           ],
                           1
                         )
-                      ],
-                      1
+                      ]
                     )
                   ]
                 }
@@ -1468,7 +1516,13 @@ var render = function() {
     ? _c(
         "v-layout",
         {
-          attrs: { row: "", wrap: "", "justify-center": "", "align-center": "" }
+          attrs: {
+            row: "",
+            wrap: "",
+            "justify-center": "",
+            "align-center": "",
+            "fill-height": true
+          }
         },
         [
           _c(
@@ -1494,6 +1548,12 @@ var render = function() {
                         "Количество вопросов: " +
                           _vm._s(_vm.test.questions_count)
                       )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "body-2" }, [
+                      _vm._v(
+                        "Всего вопросов: " + _vm._s(_vm.test.questions.length)
+                      )
                     ])
                   ]),
                   _vm._v(" "),
@@ -1508,7 +1568,7 @@ var render = function() {
                             hint: "Пока что это не работает :)"
                           }
                         },
-                        [_vm._v("Связаться")]
+                        [_vm._v("Кнопка для чего-то")]
                       )
                     ],
                     1
@@ -1571,48 +1631,6 @@ var render = function() {
               )
             ],
             1
-          ),
-          _vm._v(" "),
-          _c(
-            "v-flex",
-            { attrs: { xs4: "" } },
-            [
-              _c(
-                "v-card",
-                [
-                  _c("v-card-title", { attrs: { "primary-title": "" } }, [
-                    _c("div", { staticClass: "headline" }, [
-                      _vm._v("Предмет: " + _vm._s(_vm.test.subject.name))
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("v-card-text", [
-                    _c("div", { staticClass: "body-2" }, [
-                      _vm._v("ID: " + _vm._s(_vm.test.subject.id))
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "v-card-actions",
-                    [
-                      _c(
-                        "v-btn",
-                        {
-                          attrs: {
-                            flat: "",
-                            hint: "Пока что это не работает :)"
-                          }
-                        },
-                        [_vm._v("Посмотреть все тесты")]
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              )
-            ],
-            1
           )
         ],
         1
@@ -1663,18 +1681,12 @@ var render = function() {
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(props.item.name))]),
                     _vm._v(" "),
-                    _c("td", [
-                      _vm._v(
-                        _vm._s(props.item.author.first_name) +
-                          " " +
-                          _vm._s(props.item.author.last_name)
-                      )
-                    ]),
-                    _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(props.item.subject.name))]),
                     _vm._v(" "),
                     _c("td", [
-                      _vm._v(_vm._s(_vm._f("readable")(props.item.created_at)))
+                      _vm._v(
+                        _vm._s(_vm._f("readable")(props.item.created_at.date))
+                      )
                     ]),
                     _vm._v(" "),
                     _c(
@@ -1746,32 +1758,105 @@ var render = function() {
                           1
                         ),
                         _vm._v(" "),
-                        _c(
-                          "v-tooltip",
-                          { attrs: { bottom: "" } },
-                          [
-                            _c(
-                              "v-btn",
-                              {
-                                staticClass: "mx-0",
-                                attrs: {
-                                  slot: "activator",
-                                  icon: "",
-                                  to: "/tests/" + props.item.id
-                                },
-                                slot: "activator"
-                              },
+                        !props.expanded
+                          ? _c(
+                              "v-tooltip",
+                              { attrs: { bottom: "" } },
                               [
-                                _c("v-icon", { attrs: { color: "blue" } }, [
-                                  _vm._v("keyboard_arrow_right")
-                                ])
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "mx-0",
+                                    attrs: { slot: "activator", icon: "" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.loadTest(props)
+                                      }
+                                    },
+                                    slot: "activator"
+                                  },
+                                  [
+                                    _c("v-icon", { attrs: { color: "blue" } }, [
+                                      _vm._v("expand_more")
+                                    ])
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("span", [_vm._v("Открыть список вопросов")])
                               ],
                               1
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("Подробнее")])
-                          ],
-                          1
+                            )
+                          : _c(
+                              "v-tooltip",
+                              { attrs: { bottom: "" } },
+                              [
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "mx-0",
+                                    attrs: { slot: "activator", icon: "" },
+                                    on: {
+                                      click: function($event) {
+                                        props.expanded = false
+                                      }
+                                    },
+                                    slot: "activator"
+                                  },
+                                  [
+                                    _c("v-icon", { attrs: { color: "blue" } }, [
+                                      _vm._v("expand_less")
+                                    ])
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("span", [_vm._v("Закрыть список вопросов")])
+                              ],
+                              1
+                            )
+                      ],
+                      1
+                    )
+                  ]
+                }
+              },
+              {
+                key: "expand",
+                fn: function(props) {
+                  return [
+                    _c(
+                      "v-container",
+                      { attrs: { fluid: "", "grid-list-md": "" } },
+                      [
+                        _c(
+                          "v-layout",
+                          { attrs: { row: "", wrap: "" } },
+                          _vm._l(props.item.questions, function(question) {
+                            return _c(
+                              "v-flex",
+                              {
+                                key: question.id,
+                                attrs: { xs12: "", md6: "", lg4: "", xl3: "" }
+                              },
+                              [
+                                _c(
+                                  "v-card",
+                                  [
+                                    _c("v-card-title", [
+                                      _c("h4", [_vm._v(_vm._s(question.body))])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("v-card-text", [
+                                      _vm._v(_vm._s(question.answer))
+                                    ])
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            )
+                          })
                         )
                       ],
                       1
@@ -2251,12 +2336,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_router__ = __webpack_require__("./node_modules/vue-router/dist/vue-router.esm.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vuetify__ = __webpack_require__("./node_modules/vuetify/dist/vuetify.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vuetify___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_vuetify__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_axios__ = __webpack_require__("./node_modules/axios/index.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_axios__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_moment__ = __webpack_require__("./node_modules/moment/moment.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_moment__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__utilities_auth__ = __webpack_require__("./resources/assets/js/utilities/auth.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__utilities_form__ = __webpack_require__("./resources/assets/js/utilities/form.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_vuetify_dist_vuetify_min_css__ = __webpack_require__("./node_modules/vuetify/dist/vuetify.min.css");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_vuetify_dist_vuetify_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_vuetify_dist_vuetify_min_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_axios__ = __webpack_require__("./node_modules/axios/index.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_axios__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_moment__ = __webpack_require__("./node_modules/moment/moment.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_moment__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__utilities_auth__ = __webpack_require__("./resources/assets/js/utilities/auth.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__utilities_form__ = __webpack_require__("./resources/assets/js/utilities/form.js");
 
 window.Vue = __WEBPACK_IMPORTED_MODULE_0_vue___default.a;
 
@@ -2264,20 +2351,21 @@ window.Vue = __WEBPACK_IMPORTED_MODULE_0_vue___default.a;
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_1_vue_router__["default"]);
 
 
+
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_2_vuetify___default.a);
 
 
-window.axios = __WEBPACK_IMPORTED_MODULE_3_axios___default.a;
+window.axios = __WEBPACK_IMPORTED_MODULE_4_axios___default.a;
 
 
-window.moment = __WEBPACK_IMPORTED_MODULE_4_moment___default.a;
+window.moment = __WEBPACK_IMPORTED_MODULE_5_moment___default.a;
 window.moment.locale('ru');
 
 
-window.Auth = __WEBPACK_IMPORTED_MODULE_5__utilities_auth__["a" /* default */];
+window.Auth = __WEBPACK_IMPORTED_MODULE_6__utilities_auth__["a" /* default */];
 
 
-window.Form = __WEBPACK_IMPORTED_MODULE_6__utilities_form__["a" /* default */];
+window.Form = __WEBPACK_IMPORTED_MODULE_7__utilities_form__["a" /* default */];
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.headers.common['Accept'] = 'application/json';
