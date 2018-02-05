@@ -30,7 +30,7 @@
 						<v-btn icon class="mx-0" :to="'/tests/' + props.item.id" slot="activator">
 							<v-icon color="blue">chevron_right</v-icon>
 						</v-btn>
-						<span>Подробнее</span>
+						<span>Работа с вопросами</span>
 					</v-tooltip>
 				</td>
 			</template>
@@ -70,6 +70,16 @@
 						item-text="name"
 						v-model="form.subject_id"
 					></v-select>
+					<v-select
+						label="Куратор предмета"
+						required
+						hint="Куратор нужен исключительно для красоты. Может быть, в будущем куратор будет иметь административные полномочия в курируемых предметах"
+						:rules="[rules.required]"
+						:items="users"
+						item-value="id"
+						item-text="full_name"
+						v-model="form.author_id"
+					></v-select>
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer></v-spacer>
@@ -92,11 +102,13 @@
 		data: () => ({
 			tests: [],
 			subjects: [],
+			users: [],
 			form: new window.Form({
 				name: '',
 				subject_id: 0,
 				questions_count: '',
-				id: 0
+				id: 0,
+				author_id: 0
 			}),
 			loading: false,
 			editing: false,
@@ -140,6 +152,21 @@
 					});
 			},
 
+			loadUsers() {
+				window.axios.get('/api/users')
+					.then(response => {
+						this.users = response.data.data;
+						this.users.forEach(function (user) {
+							user.full_name = user.last_name + ' ' + user.first_name + ' ' + user.middle_name;
+						});
+						this.loading = false;
+					})
+					.catch(error => {
+						this.users = [{login: error.message}];
+						this.loading = false;
+					});
+			},
+
 			createTest() {
 				if (this.form.validate()) {
 					window.axios.post('/api/tests', this.form.data())
@@ -175,6 +202,7 @@
 
 			toggleCreatingTest() {
 				this.loadSubjects();
+				this.loadUsers();
 				this.editing = false;
 				this.form.reset();
 				this.form.show();
@@ -182,6 +210,7 @@
 
 			toggleEditingTest(test) {
 				this.loadSubjects();
+				this.loadUsers();
 				this.editing = true;
 				this.form.setData(test);
 				this.form.show();

@@ -28,9 +28,10 @@ class TestController extends Controller
 		$validated = $request->validate([
 			'name' => 'required',
 			'questions_count' => 'required|integer|min:1',
-			'subject_id' => 'required|integer|min:1'
+			'subject_id' => 'required|integer|min:1',
+			'author_id' => 'required|exists:users,id'
 		]);
-		\Auth::guard('api')->user()->createdTests()->create($validated);
+		Test::create($validated);
 		return ['message' => 'Success!'];
 	}
 
@@ -39,9 +40,28 @@ class TestController extends Controller
 		$validated = request()->validate([
 			'name' => 'required',
 			'questions_count' => 'required|integer|min:1',
-			'subject_id' => 'required|integer|min:1'
+			'subject_id' => 'required|integer|min:1',
+			'author_id' => 'required|exists:users,id'
 		]);
 		$test->update($validated);
 		return ['message' => 'Success!'];
+	}
+
+	public function delete(Test $test)
+	{
+		$test->delete();
+		return ['message' => 'Success!'];
+	}
+
+	public function start(Test $test)
+	{
+		$questions = $test->questions->random($test->questions_count)->shuffle();
+		\Auth::guard('api')->user()->questions->attach($questions);
+		return $questions;
+	}
+
+	public function end()
+	{
+		
 	}
 }

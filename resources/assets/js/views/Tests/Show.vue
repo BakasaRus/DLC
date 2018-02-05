@@ -1,5 +1,5 @@
 <template>
-<v-layout row wrap justify-center align-center :fill-height="true" v-if="Object.keys(test).length">
+<v-layout row wrap justify-center v-if="Object.keys(test).length">
 	<v-flex xs4 offset-xs4>
 		<v-card>
 			<v-card-title primary-title>
@@ -11,26 +11,6 @@
 				<div class="body-2">Количество вопросов: {{ test.questions_count }}</div>
 				<div class="body-2">Всего вопросов: {{ test.questions.length }}</div>
 			</v-card-text>
-			<v-card-actions class="justify-end">
-				<v-tooltip bottom>
-					<v-btn icon class="mx-0" @click="toggleEditingSubject(test)" slot="activator">
-						<v-icon color="green">edit</v-icon>
-					</v-btn>
-					<span>Редактировать</span>
-				</v-tooltip>
-				<v-tooltip bottom>
-					<v-btn icon class="mx-0" @click="toggleCreatingQuestion" slot="activator">
-						<v-icon color="blue">add_circle</v-icon>
-					</v-btn>
-					<span>Добавить вопрос</span>
-				</v-tooltip>
-				<v-tooltip bottom>
-					<v-btn icon class="mx-0" @click="deleteTest(test)" slot="activator">
-						<v-icon color="red">delete</v-icon>
-					</v-btn>
-					<span>Удалить</span>
-				</v-tooltip>
-			</v-card-actions>
 		</v-card>
 	</v-flex>
 	<v-flex xs4>
@@ -41,14 +21,14 @@
 	<v-flex xs3 v-for="question in test.questions" :key="question.id">
 		<v-card>
 			<v-card-text>
-				<div class="body-2">Вопрос: {{ question.body }} ({{ question.points }})</div>
-				<div class="body-2">Ответ: {{ question.answer }}</div>
+				<p class="body-3" style="white-space: pre-wrap">{{ question.body }}</p>
+				<div class="body-3">Ответ: {{ question.answer }} ({{ question.points }} баллов)</div>
 			</v-card-text>
 			<v-card-actions class="justify-end">
-				<v-btn flat icon color="green">
+				<v-btn flat icon color="green" @click="toggleEditingQuestion(question)">
 					<v-icon>edit</v-icon>
 				</v-btn>
-				<v-btn flat icon color="red">
+				<v-btn flat icon color="red" @click="deleteQuestion(question)">
 					<v-icon>delete</v-icon>
 				</v-btn>
 			</v-card-actions>
@@ -64,8 +44,7 @@
 				<v-text-field 
 					label="Вопрос" 
 					required
-					textarea
-					rows="7"
+					multi-line
 					hint="В будущем здесь будет поддержка Markdown"
 					v-model="form.body" 
 					:rules="[rules.required]"
@@ -94,6 +73,9 @@
 		</v-form>
 		</v-card>
 	</v-dialog>
+	<v-btn fixed dark fab bottom right color="indigo" @click="toggleCreatingQuestion">
+		<v-icon>add</v-icon>
+	</v-btn>
 </v-layout>
 </template>
 
@@ -116,6 +98,7 @@
 		}),
 
 		mounted() {
+			// Это должно работать, но почему-то не
 			this.form.ref = this.$refs.form;
 		},
 
@@ -185,7 +168,7 @@
 				if (this.form.validate()) {
 					window.axios.patch('/api/questions/' + this.form.id, this.form.data())
 						.then(response => {
-							this.loadQuestions();
+							this.loadTest();
 							this.form.hide();
 							this.form.reset();
 						})
@@ -193,6 +176,16 @@
 							console.log(error.data);
 						});
 				}
+			},
+
+			deleteQuestion(question) {
+				window.axios.delete('/api/questions/' + question.id)
+					.then(response => {
+						this.loadTest();
+					})
+					.catch(error => {
+						console.log(error.data);
+					});
 			},
 		}
 	}

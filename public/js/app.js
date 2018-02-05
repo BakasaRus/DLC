@@ -238,14 +238,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
 		return {
 			subjects: [],
-			form: new window.Form({
-				name: ''
-			}),
+			users: [],
+			form: {},
 			editing: false,
 			loading: false,
 			rules: {
@@ -258,6 +267,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	},
 
 	mounted: function mounted() {
+		this.form = new window.Form({
+			id: 0,
+			name: '',
+			author_id: this.$root.user.id
+		});
 		this.form.ref = this.$refs.form;
 		this.loadSubjects();
 	},
@@ -285,48 +299,63 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				_this.loading = false;
 			});
 		},
+		loadUsers: function loadUsers() {
+			var _this2 = this;
+
+			window.axios.get('/api/users').then(function (response) {
+				_this2.users = response.data.data;
+				_this2.users.forEach(function (user) {
+					user.full_name = user.last_name + ' ' + user.first_name + ' ' + user.middle_name;
+				});
+				_this2.loading = false;
+			}).catch(function (error) {
+				_this2.users = [{ login: error.message }];
+				_this2.loading = false;
+			});
+		},
 		formAction: function formAction() {
 			if (this.editing) this.updateSubject();else this.createSubject();
 		},
 		toggleEditingSubject: function toggleEditingSubject(subject) {
-			this.form.name = subject.name;
-			this.form.id = subject.id;
+			this.loadUsers();
+			this.form.setData(subject);
 			this.editing = true;
 			this.form.show();
 		},
 		toggleCreatingSubject: function toggleCreatingSubject() {
+			this.loadUsers();
 			this.form.reset();
 			this.editing = false;
 			this.form.show();
 		},
 		updateSubject: function updateSubject() {
-			var _this2 = this;
+			var _this3 = this;
 
 			window.axios.patch('/api/subjects/' + this.form.id, this.form.data()).then(function (response) {
 				console.log(response.data);
-				_this2.loadSubjects();
-				_this2.form.hide();
+				_this3.loadSubjects();
+				_this3.form.hide();
 			}).catch(function (error) {
 				console.log(error.data);
 			});
 		},
 		deleteSubject: function deleteSubject(subject) {
-			var _this3 = this;
+			var _this4 = this;
 
 			window.axios.delete('/api/subjects/' + subject.id).then(function (response) {
 				console.log(response.data);
-				_this3.loadSubjects();
+				_this4.loadSubjects();
 			}).catch(function (error) {
 				console.log(error.data);
 			});
 		},
 		createSubject: function createSubject() {
-			var _this4 = this;
+			var _this5 = this;
 
 			window.axios.post('/api/subjects', this.form.data()).then(function (response) {
-				_this4.form.hide();
-				_this4.form.reset();
-				_this4.loadSubjects();
+				_this5.form.hide();
+				_this5.form.reset();
+				_this5.loadSubjects();
 			}).catch(function (error) {
 				console.log(error.data);
 			});
@@ -484,17 +513,29 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
 		return {
 			tests: [],
 			subjects: [],
+			users: [],
 			form: new window.Form({
 				name: '',
 				subject_id: 0,
 				questions_count: '',
-				id: 0
+				id: 0,
+				author_id: 0
 			}),
 			loading: false,
 			editing: false,
@@ -535,27 +576,41 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				_this.loading = false;
 			});
 		},
-		createTest: function createTest() {
+		loadUsers: function loadUsers() {
 			var _this2 = this;
+
+			window.axios.get('/api/users').then(function (response) {
+				_this2.users = response.data.data;
+				_this2.users.forEach(function (user) {
+					user.full_name = user.last_name + ' ' + user.first_name + ' ' + user.middle_name;
+				});
+				_this2.loading = false;
+			}).catch(function (error) {
+				_this2.users = [{ login: error.message }];
+				_this2.loading = false;
+			});
+		},
+		createTest: function createTest() {
+			var _this3 = this;
 
 			if (this.form.validate()) {
 				window.axios.post('/api/tests', this.form.data()).then(function (response) {
-					_this2.form.hide();
-					_this2.form.reset();
-					_this2.loadTests();
+					_this3.form.hide();
+					_this3.form.reset();
+					_this3.loadTests();
 				}).catch(function (error) {
 					console.log(error.data);
 				});
 			}
 		},
 		updateTest: function updateTest() {
-			var _this3 = this;
+			var _this4 = this;
 
 			if (this.form.validate()) {
 				window.axios.patch('/api/tests/' + this.form.id, this.form.data()).then(function (response) {
-					_this3.loadTests();
-					_this3.form.hide();
-					_this3.form.reset();
+					_this4.loadTests();
+					_this4.form.hide();
+					_this4.form.reset();
 				}).catch(function (error) {
 					console.log(error.data);
 				});
@@ -566,23 +621,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		},
 		toggleCreatingTest: function toggleCreatingTest() {
 			this.loadSubjects();
+			this.loadUsers();
 			this.editing = false;
 			this.form.reset();
 			this.form.show();
 		},
 		toggleEditingTest: function toggleEditingTest(test) {
 			this.loadSubjects();
+			this.loadUsers();
 			this.editing = true;
 			this.form.setData(test);
 			this.form.show();
 		},
 		loadSubjects: function loadSubjects() {
-			var _this4 = this;
+			var _this5 = this;
 
 			window.axios.get('/api/subjects').then(function (response) {
-				return _this4.subjects = response.data.data;
+				return _this5.subjects = response.data.data;
 			}).catch(function (error) {
-				return _this4.subjects = [{ name: error.message }];
+				return _this5.subjects = [{ name: error.message }];
 			});
 		},
 		isAuthor: function isAuthor(subject) {
@@ -604,24 +661,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -726,6 +765,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	},
 
 	mounted: function mounted() {
+		// Это должно работать, но почему-то не
 		this.form.ref = this.$refs.form;
 	},
 	created: function created() {
@@ -789,13 +829,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 			if (this.form.validate()) {
 				window.axios.patch('/api/questions/' + this.form.id, this.form.data()).then(function (response) {
-					_this3.loadQuestions();
+					_this3.loadTest();
 					_this3.form.hide();
 					_this3.form.reset();
 				}).catch(function (error) {
 					console.log(error.data);
 				});
 			}
+		},
+		deleteQuestion: function deleteQuestion(question) {
+			var _this4 = this;
+
+			window.axios.delete('/api/questions/' + question.id).then(function (response) {
+				_this4.loadTest();
+			}).catch(function (error) {
+				console.log(error.data);
+			});
 		}
 	}
 });
@@ -1131,7 +1180,7 @@ var render = function() {
         [
           _c(
             "v-container",
-            { attrs: { fluid: "", "fill-height": "", "grid-list-xl": "" } },
+            { attrs: { fluid: "", "grid-list-xl": "" } },
             [_c("router-view", {})],
             1
           )
@@ -1370,6 +1419,26 @@ var render = function() {
                               },
                               expression: "form.name"
                             }
+                          }),
+                          _vm._v(" "),
+                          _c("v-select", {
+                            attrs: {
+                              label: "Куратор предмета",
+                              required: "",
+                              hint:
+                                "Куратор нужен исключительно для красоты. Может быть, в будущем куратор будет иметь административные полномочия в курируемых предметах",
+                              rules: [_vm.rules.required],
+                              items: _vm.users,
+                              "item-value": "id",
+                              "item-text": "full_name"
+                            },
+                            model: {
+                              value: _vm.form.author_id,
+                              callback: function($$v) {
+                                _vm.$set(_vm.form, "author_id", $$v)
+                              },
+                              expression: "form.author_id"
+                            }
                           })
                         ],
                         1
@@ -1537,15 +1606,7 @@ var render = function() {
   return Object.keys(_vm.test).length
     ? _c(
         "v-layout",
-        {
-          attrs: {
-            row: "",
-            wrap: "",
-            "justify-center": "",
-            "align-center": "",
-            "fill-height": true
-          }
-        },
+        { attrs: { row: "", wrap: "", "justify-center": "" } },
         [
           _c(
             "v-flex",
@@ -1588,97 +1649,7 @@ var render = function() {
                         "Всего вопросов: " + _vm._s(_vm.test.questions.length)
                       )
                     ])
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "v-card-actions",
-                    { staticClass: "justify-end" },
-                    [
-                      _c(
-                        "v-tooltip",
-                        { attrs: { bottom: "" } },
-                        [
-                          _c(
-                            "v-btn",
-                            {
-                              staticClass: "mx-0",
-                              attrs: { slot: "activator", icon: "" },
-                              on: {
-                                click: function($event) {
-                                  _vm.toggleEditingSubject(_vm.test)
-                                }
-                              },
-                              slot: "activator"
-                            },
-                            [
-                              _c("v-icon", { attrs: { color: "green" } }, [
-                                _vm._v("edit")
-                              ])
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c("span", [_vm._v("Редактировать")])
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-tooltip",
-                        { attrs: { bottom: "" } },
-                        [
-                          _c(
-                            "v-btn",
-                            {
-                              staticClass: "mx-0",
-                              attrs: { slot: "activator", icon: "" },
-                              on: { click: _vm.toggleCreatingQuestion },
-                              slot: "activator"
-                            },
-                            [
-                              _c("v-icon", { attrs: { color: "blue" } }, [
-                                _vm._v("add_circle")
-                              ])
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c("span", [_vm._v("Добавить вопрос")])
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-tooltip",
-                        { attrs: { bottom: "" } },
-                        [
-                          _c(
-                            "v-btn",
-                            {
-                              staticClass: "mx-0",
-                              attrs: { slot: "activator", icon: "" },
-                              on: {
-                                click: function($event) {
-                                  _vm.deleteTest(_vm.test)
-                                }
-                              },
-                              slot: "activator"
-                            },
-                            [
-                              _c("v-icon", { attrs: { color: "red" } }, [
-                                _vm._v("delete")
-                              ])
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c("span", [_vm._v("Удалить")])
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  )
+                  ])
                 ],
                 1
               )
@@ -1697,18 +1668,23 @@ var render = function() {
                   "v-card",
                   [
                     _c("v-card-text", [
-                      _c("div", { staticClass: "body-2" }, [
+                      _c(
+                        "p",
+                        {
+                          staticClass: "body-3",
+                          staticStyle: { "white-space": "pre-wrap" }
+                        },
+                        [_vm._v(_vm._s(question.body))]
+                      ),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "body-3" }, [
                         _vm._v(
-                          "Вопрос: " +
-                            _vm._s(question.body) +
+                          "Ответ: " +
+                            _vm._s(question.answer) +
                             " (" +
                             _vm._s(question.points) +
-                            ")"
+                            " баллов)"
                         )
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "body-2" }, [
-                        _vm._v("Ответ: " + _vm._s(question.answer))
                       ])
                     ]),
                     _vm._v(" "),
@@ -1718,14 +1694,28 @@ var render = function() {
                       [
                         _c(
                           "v-btn",
-                          { attrs: { flat: "", icon: "", color: "green" } },
+                          {
+                            attrs: { flat: "", icon: "", color: "green" },
+                            on: {
+                              click: function($event) {
+                                _vm.toggleEditingQuestion(question)
+                              }
+                            }
+                          },
                           [_c("v-icon", [_vm._v("edit")])],
                           1
                         ),
                         _vm._v(" "),
                         _c(
                           "v-btn",
-                          { attrs: { flat: "", icon: "", color: "red" } },
+                          {
+                            attrs: { flat: "", icon: "", color: "red" },
+                            on: {
+                              click: function($event) {
+                                _vm.deleteQuestion(question)
+                              }
+                            }
+                          },
                           [_c("v-icon", [_vm._v("delete")])],
                           1
                         )
@@ -1782,8 +1772,7 @@ var render = function() {
                             attrs: {
                               label: "Вопрос",
                               required: "",
-                              textarea: "",
-                              rows: "7",
+                              "multi-line": "",
                               hint: "В будущем здесь будет поддержка Markdown",
                               rules: [_vm.rules.required]
                             },
@@ -1885,6 +1874,23 @@ var render = function() {
                 1
               )
             ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-btn",
+            {
+              attrs: {
+                fixed: "",
+                dark: "",
+                fab: "",
+                bottom: "",
+                right: "",
+                color: "indigo"
+              },
+              on: { click: _vm.toggleCreatingQuestion }
+            },
+            [_c("v-icon", [_vm._v("add")])],
             1
           )
         ],
@@ -2036,7 +2042,7 @@ var render = function() {
                               1
                             ),
                             _vm._v(" "),
-                            _c("span", [_vm._v("Подробнее")])
+                            _c("span", [_vm._v("Работа с вопросами")])
                           ],
                           1
                         )
@@ -2151,6 +2157,26 @@ var render = function() {
                                 _vm.$set(_vm.form, "subject_id", $$v)
                               },
                               expression: "form.subject_id"
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("v-select", {
+                            attrs: {
+                              label: "Куратор предмета",
+                              required: "",
+                              hint:
+                                "Куратор нужен исключительно для красоты. Может быть, в будущем куратор будет иметь административные полномочия в курируемых предметах",
+                              rules: [_vm.rules.required],
+                              items: _vm.users,
+                              "item-value": "id",
+                              "item-text": "full_name"
+                            },
+                            model: {
+                              value: _vm.form.author_id,
+                              callback: function($$v) {
+                                _vm.$set(_vm.form, "author_id", $$v)
+                              },
+                              expression: "form.author_id"
                             }
                           })
                         ],

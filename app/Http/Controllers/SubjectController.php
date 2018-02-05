@@ -26,16 +26,19 @@ class SubjectController extends Controller
 	public function store(Request $request)
 	{
 		$validated = $request->validate([
-			'name' => 'required'
+			'name' => 'required',
+			'author_id' => 'required|exists:users,id'
 		]);
-		\Auth::guard('api')->user()->createdSubjects()->create($validated);
+		//\Auth::guard('api')->user()->createdSubjects()->create($validated);
+		Subject::create($validated);
 		return ['message' => 'Success!'];
 	}
 
 	public function update(Request $request, Subject $subject)
 	{
 		$validated = $request->validate([
-			'name' => 'required'
+			'name' => 'required',
+			'author_id' => 'required|exists:users,id'
 		]);
 		$subject->update($validated);
 		return ['message' => 'Success!'];

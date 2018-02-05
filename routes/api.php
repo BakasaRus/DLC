@@ -30,7 +30,10 @@ Route::get('/tests', 'TestController@index');
 Route::get('/tests/{test}', 'TestController@show');
 Route::post('/tests', 'TestController@store');
 Route::patch('/tests/{test}', 'TestController@update');
+Route::delete('/tests/{test}', 'TestController@delete');
 
 Route::get('/questions', 'QuestionController@index');
-Route::get('/questions/{user}', 'QuestionController@show');
+Route::get('/questions/{question}', 'QuestionController@show');
 Route::post('/questions', 'QuestionController@store');
+Route::patch('/questions/{question}', 'QuestionController@update');
+Route::delete('/questions/{question}', 'QuestionController@delete');

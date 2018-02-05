@@ -45,7 +45,7 @@
 		</v-toolbar-items>
 	</v-toolbar>
 	<v-content>
-		<v-container fluid fill-height grid-list-xl>
+		<v-container fluid grid-list-xl>
 			<!--<loading-view v-cloak></loading-view>-->
 			<router-view v-cloak></router-view>
 		</v-container>

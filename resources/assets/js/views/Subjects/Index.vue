@@ -54,6 +54,16 @@
 						:rules="[rules.required]"
 						:counter="50"
 						></v-text-field>
+						<v-select
+							label="Куратор предмета"
+							required
+							hint="Куратор нужен исключительно для красоты. Может быть, в будущем куратор будет иметь административные полномочия в курируемых предметах"
+							:rules="[rules.required]"
+							:items="users"
+							item-value="id"
+							item-text="full_name"
+							v-model="form.author_id"
+						></v-select>
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer></v-spacer>
@@ -73,9 +83,8 @@
 	export default {
 		data: () => ({
 			subjects: [],
-			form: new window.Form({
-				name: ''
-			}),
+			users: [],
+			form: {},
 			editing: false,
 			loading: false,
 			rules: {
@@ -91,6 +100,11 @@
 		}),
 
 		mounted() {
+			this.form = new window.Form({
+				id: 0,
+				name: '',
+				author_id: this.$root.user.id
+			});
 			this.form.ref = this.$refs.form;
 			this.loadSubjects();
 		},
@@ -119,19 +133,35 @@
 					});
 			},
 
+			loadUsers() {
+				window.axios.get('/api/users')
+					.then(response => {
+						this.users = response.data.data;
+						this.users.forEach(function (user) {
+							user.full_name = user.last_name + ' ' + user.first_name + ' ' + user.middle_name;
+						});
+						this.loading = false;
+					})
+					.catch(error => {
+						this.users = [{login: error.message}];
+						this.loading = false;
+					});
+			},
+
 			formAction() {
 				if (this.editing) this.updateSubject();
 				else this.createSubject();
 			},
 
 			toggleEditingSubject(subject) {
-				this.form.name = subject.name;
-				this.form.id = subject.id;
+				this.loadUsers();
+				this.form.setData(subject);
 				this.editing = true;
 				this.form.show();
 			},
 
 			toggleCreatingSubject() {
+				this.loadUsers();
 				this.form.reset();
 				this.editing = false;
 				this.form.show();
