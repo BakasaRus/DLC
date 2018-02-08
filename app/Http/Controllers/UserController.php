@@ -10,11 +10,11 @@ class UserController extends Controller
 {
 	public function __construct()
 	{
-		$this->middleware('api');
+		$this->middleware('auth:api');
 	}
 	
-    public function index()
-    {
-    	return Users::collection(User::all());
-    }
+	public function index()
+	{
+		return Users::collection(User::whereIn('role', request('role') ?? [0, 1, 2])->get());
+	}
 }

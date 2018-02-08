@@ -14,17 +14,17 @@
 				<tr>
 					<td>{{ props.item.id }}</td>
 					<td>{{ props.item.name }}</td>
-					<td>{{ props.item.author.first_name }} {{ props.item.author.last_name }}</td>
+					<td>{{ props.item.author.full_name }}</td>
 					<td>{{ props.item.created_at.date | readable }}</td>
 					<td>
 						<v-tooltip bottom>
-							<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="toggleEditingSubject(props.item)" slot="activator">
+							<v-btn icon class="mx-0" @click="toggleEditingSubject(props.item)" slot="activator">
 								<v-icon color="green">edit</v-icon>
 							</v-btn>
 							<span>Редактировать</span>
 						</v-tooltip>
 						<v-tooltip bottom>
-							<v-btn icon class="mx-0" :disabled="!isAuthor(props.item)" @click="deleteSubject(props.item)" slot="activator">
+							<v-btn icon class="mx-0" @click="deleteSubject(props.item)" slot="activator">
 								<v-icon color="red">delete</v-icon>
 							</v-btn>
 							<span>Удалить</span>
@@ -134,12 +134,9 @@
 			},
 
 			loadUsers() {
-				window.axios.get('/api/users')
+				window.axios.get('/api/users', {params: {role: [1, 2]}})
 					.then(response => {
 						this.users = response.data.data;
-						this.users.forEach(function (user) {
-							user.full_name = user.last_name + ' ' + user.first_name + ' ' + user.middle_name;
-						});
 						this.loading = false;
 					})
 					.catch(error => {
@@ -200,10 +197,6 @@
 					.catch(error => {
 						console.log(error.data);
 					});
-			},
-
-			isAuthor(subject) {
-				return subject.author_id == this.$root.user.id;
 			}
 		},
 

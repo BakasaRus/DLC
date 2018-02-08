@@ -10,12 +10,22 @@ class SubjectController extends Controller
 {
 	public function __construct()
 	{
-		$this->middleware('api');
+		$this->middleware('auth:api');
 	}
 	
 	public function index()
 	{
-		return Subjects::collection(Subject::with('author')->get());
+		switch (request()->user()->role) {
+			case 2:
+				return Subjects::collection(Subject::with('author')->get());
+				break;
+			case 1:
+				return Subjects::collection(request()->user()->createdSubjects->load('author'));
+				break;
+			default:
+				return new Subjects();
+				break;
+		}
 	}
 
 	public function show(Subject $subject)

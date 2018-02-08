@@ -302,11 +302,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		loadUsers: function loadUsers() {
 			var _this2 = this;
 
-			window.axios.get('/api/users').then(function (response) {
+			window.axios.get('/api/users', { params: { role: [1, 2] } }).then(function (response) {
 				_this2.users = response.data.data;
-				_this2.users.forEach(function (user) {
-					user.full_name = user.last_name + ' ' + user.first_name + ' ' + user.middle_name;
-				});
 				_this2.loading = false;
 			}).catch(function (error) {
 				_this2.users = [{ login: error.message }];
@@ -359,9 +356,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			}).catch(function (error) {
 				console.log(error.data);
 			});
-		},
-		isAuthor: function isAuthor(subject) {
-			return subject.author_id == this.$root.user.id;
 		}
 	},
 
@@ -579,11 +573,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		loadUsers: function loadUsers() {
 			var _this2 = this;
 
-			window.axios.get('/api/users').then(function (response) {
+			window.axios.get('/api/users', { params: { role: [1, 2] } }).then(function (response) {
 				_this2.users = response.data.data;
-				_this2.users.forEach(function (user) {
-					user.full_name = user.last_name + ' ' + user.first_name + ' ' + user.middle_name;
-				});
 				_this2.loading = false;
 			}).catch(function (error) {
 				_this2.users = [{ login: error.message }];
@@ -641,9 +632,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			}).catch(function (error) {
 				return _this5.subjects = [{ name: error.message }];
 			});
-		},
-		isAuthor: function isAuthor(subject) {
-			return subject.author_id == this.$root.user.id;
 		}
 	},
 
@@ -742,6 +730,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
@@ -754,6 +756,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				test_id: 0,
 				id: 0
 			}),
+			headers: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Вопрос', value: 'body', align: 'left' }, { text: 'Ответ', value: 'answer', align: 'left' }, { text: 'Баллы', value: 'points', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }],
 			loading: false,
 			editing: false,
 			rules: {
@@ -879,13 +882,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
 		return {
 			users: [],
 			loading: false,
-			headers: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Логин', value: 'login', align: 'left' }, { text: 'Фамилия', value: 'last_name', align: 'left' }, { text: 'Имя', value: 'first_name', align: 'left' }, { text: 'Отчество', value: 'middle_name', align: 'left' }, { text: 'Дата регистрации', value: 'registration_date.date', align: 'left' }]
+			headers: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Логин', value: 'login', align: 'left' }, { text: 'Фамилия', value: 'last_name', align: 'left' }, { text: 'Имя', value: 'first_name', align: 'left' }, { text: 'Отчество', value: 'middle_name', align: 'left' }, { text: 'Роль', value: 'role', align: 'left' }, { text: 'Дата регистрации', value: 'registration_date.date', align: 'left' }]
 		};
 	},
 
@@ -912,6 +916,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	filters: {
 		readable: function readable(date) {
 			return moment(date).format('LLL');
+		},
+		stringRole: function stringRole(role) {
+			switch (role) {
+				case 2:
+					return 'Администратор';
+				case 1:
+					return 'Преподаватель';
+				default:
+					return 'Пользователь';
+			}
 		}
 	}
 });
@@ -1238,13 +1252,7 @@ var render = function() {
                       _vm._v(" "),
                       _c("td", [_vm._v(_vm._s(props.item.name))]),
                       _vm._v(" "),
-                      _c("td", [
-                        _vm._v(
-                          _vm._s(props.item.author.first_name) +
-                            " " +
-                            _vm._s(props.item.author.last_name)
-                        )
-                      ]),
+                      _c("td", [_vm._v(_vm._s(props.item.author.full_name))]),
                       _vm._v(" "),
                       _c("td", [
                         _vm._v(
@@ -1263,11 +1271,7 @@ var render = function() {
                                 "v-btn",
                                 {
                                   staticClass: "mx-0",
-                                  attrs: {
-                                    slot: "activator",
-                                    icon: "",
-                                    disabled: !_vm.isAuthor(props.item)
-                                  },
+                                  attrs: { slot: "activator", icon: "" },
                                   on: {
                                     click: function($event) {
                                       _vm.toggleEditingSubject(props.item)
@@ -1296,11 +1300,7 @@ var render = function() {
                                 "v-btn",
                                 {
                                   staticClass: "mx-0",
-                                  attrs: {
-                                    slot: "activator",
-                                    icon: "",
-                                    disabled: !_vm.isAuthor(props.item)
-                                  },
+                                  attrs: { slot: "activator", icon: "" },
                                   on: {
                                     click: function($event) {
                                       _vm.deleteSubject(props.item)
@@ -1659,76 +1659,104 @@ var render = function() {
           _vm._v(" "),
           _c("v-flex", { attrs: { xs4: "" } }, [_c("v-card")], 1),
           _vm._v(" "),
-          _vm._l(_vm.test.questions, function(question) {
-            return _c(
-              "v-flex",
-              { key: question.id, attrs: { xs3: "" } },
-              [
-                _c(
-                  "v-card",
-                  [
-                    _c("v-card-text", [
-                      _c(
-                        "p",
-                        {
-                          staticClass: "body-3",
-                          staticStyle: { "white-space": "pre-wrap" }
-                        },
-                        [_vm._v(_vm._s(question.body))]
-                      ),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "body-3" }, [
-                        _vm._v(
-                          "Ответ: " +
-                            _vm._s(question.answer) +
-                            " (" +
-                            _vm._s(question.points) +
-                            " баллов)"
-                        )
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "v-card-actions",
-                      { staticClass: "justify-end" },
-                      [
-                        _c(
-                          "v-btn",
-                          {
-                            attrs: { flat: "", icon: "", color: "green" },
-                            on: {
-                              click: function($event) {
-                                _vm.toggleEditingQuestion(question)
-                              }
-                            }
-                          },
-                          [_c("v-icon", [_vm._v("edit")])],
-                          1
-                        ),
+          _c(
+            "v-flex",
+            { attrs: { xs12: "" } },
+            [
+              _c("v-data-table", {
+                staticClass: "elevation-1",
+                attrs: {
+                  headers: _vm.headers,
+                  items: _vm.test.questions,
+                  "hide-actions": "",
+                  loading: _vm.loading
+                },
+                scopedSlots: _vm._u([
+                  {
+                    key: "items",
+                    fn: function(props) {
+                      return [
+                        _c("td", [_vm._v(_vm._s(props.item.id))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(props.item.body))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(props.item.answer))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(props.item.points))]),
                         _vm._v(" "),
                         _c(
-                          "v-btn",
-                          {
-                            attrs: { flat: "", icon: "", color: "red" },
-                            on: {
-                              click: function($event) {
-                                _vm.deleteQuestion(question)
-                              }
-                            }
-                          },
-                          [_c("v-icon", [_vm._v("delete")])],
+                          "td",
+                          [
+                            _c(
+                              "v-tooltip",
+                              { attrs: { bottom: "" } },
+                              [
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "mx-0",
+                                    attrs: { slot: "activator", icon: "" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.toggleEditingQuestion(props.item)
+                                      }
+                                    },
+                                    slot: "activator"
+                                  },
+                                  [
+                                    _c(
+                                      "v-icon",
+                                      { attrs: { color: "green" } },
+                                      [_vm._v("edit")]
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("span", [_vm._v("Редактировать")])
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "v-tooltip",
+                              { attrs: { bottom: "" } },
+                              [
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "mx-0",
+                                    attrs: { slot: "activator", icon: "" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.deleteQuestion(props.item)
+                                      }
+                                    },
+                                    slot: "activator"
+                                  },
+                                  [
+                                    _c("v-icon", { attrs: { color: "red" } }, [
+                                      _vm._v("delete")
+                                    ])
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("span", [_vm._v("Удалить")])
+                              ],
+                              1
+                            )
+                          ],
                           1
                         )
-                      ],
-                      1
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            )
-          }),
+                      ]
+                    }
+                  }
+                ])
+              })
+            ],
+            1
+          ),
           _vm._v(" "),
           _c(
             "v-dialog",
@@ -1894,7 +1922,7 @@ var render = function() {
             1
           )
         ],
-        2
+        1
       )
     : _vm._e()
 }
@@ -1961,11 +1989,7 @@ var render = function() {
                               "v-btn",
                               {
                                 staticClass: "mx-0",
-                                attrs: {
-                                  slot: "activator",
-                                  icon: "",
-                                  disabled: !_vm.isAuthor(props.item)
-                                },
+                                attrs: { slot: "activator", icon: "" },
                                 on: {
                                   click: function($event) {
                                     _vm.toggleEditingTest(props.item)
@@ -1994,11 +2018,7 @@ var render = function() {
                               "v-btn",
                               {
                                 staticClass: "mx-0",
-                                attrs: {
-                                  slot: "activator",
-                                  icon: "",
-                                  disabled: !_vm.isAuthor(props.item)
-                                },
+                                attrs: { slot: "activator", icon: "" },
                                 on: {
                                   click: function($event) {
                                     _vm.deleteSubject(props.item)
@@ -2311,6 +2331,10 @@ var render = function() {
                     _c("td", [_vm._v(_vm._s(props.item.first_name))]),
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(props.item.middle_name))]),
+                    _vm._v(" "),
+                    _c("td", [
+                      _vm._v(_vm._s(_vm._f("stringRole")(props.item.role)))
+                    ]),
                     _vm._v(" "),
                     _c("td", [
                       _vm._v(

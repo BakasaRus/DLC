@@ -2,7 +2,7 @@
 <v-layout row wrap justify-center align-center>
 	<v-flex xs12>
 		<v-data-table
-			v-bind:headers="headers"
+			:headers="headers"
 			:items="users"
 			hide-actions
 			class="elevation-1"
@@ -14,6 +14,7 @@
 				<td>{{ props.item.last_name }}</td>
 				<td>{{ props.item.first_name }}</td>
 				<td>{{ props.item.middle_name }}</td>
+				<td>{{ props.item.role | stringRole }}</td>
 				<td>{{ props.item.registration_date.date | readable }}</td>
 			</template>
 		</v-data-table>
@@ -32,6 +33,7 @@
 				{ text: 'Фамилия', value: 'last_name', align: 'left' },
 				{ text: 'Имя', value: 'first_name', align: 'left' },
 				{ text: 'Отчество', value: 'middle_name', align: 'left' },
+				{ text: 'Роль', value: 'role', align: 'left' },
 				{ text: 'Дата регистрации', value: 'registration_date.date', align: 'left' }
 			]
 		}),
@@ -58,6 +60,14 @@
 		filters: {
 			readable(date) {
 				return moment(date).format('LLL');
+			},
+
+			stringRole(role) {
+				switch (role) {
+					case 2: return 'Администратор';
+					case 1: return 'Преподаватель';
+					default: return 'Пользователь';
+				}
 			}
 		}
 	}

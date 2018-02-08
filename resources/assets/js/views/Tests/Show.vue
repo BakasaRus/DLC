@@ -18,21 +18,35 @@
 			<!-- Empty block (temporary) -->
 		</v-card>
 	</v-flex>
-	<v-flex xs3 v-for="question in test.questions" :key="question.id">
-		<v-card>
-			<v-card-text>
-				<p class="body-3" style="white-space: pre-wrap">{{ question.body }}</p>
-				<div class="body-3">Ответ: {{ question.answer }} ({{ question.points }} баллов)</div>
-			</v-card-text>
-			<v-card-actions class="justify-end">
-				<v-btn flat icon color="green" @click="toggleEditingQuestion(question)">
-					<v-icon>edit</v-icon>
-				</v-btn>
-				<v-btn flat icon color="red" @click="deleteQuestion(question)">
-					<v-icon>delete</v-icon>
-				</v-btn>
-			</v-card-actions>
-		</v-card>
+	<v-flex xs12>
+		<v-data-table
+			:headers="headers"
+			:items="test.questions"
+			hide-actions
+			class="elevation-1"
+			:loading="loading"
+		>
+			<template slot="items" slot-scope="props">
+				<td>{{ props.item.id }}</td>
+				<td>{{ props.item.body }}</td>
+				<td>{{ props.item.answer }}</td>
+				<td>{{ props.item.points }}</td>
+				<td>
+					<v-tooltip bottom>
+						<v-btn icon class="mx-0" @click="toggleEditingQuestion(props.item)" slot="activator">
+							<v-icon color="green">edit</v-icon>
+						</v-btn>
+						<span>Редактировать</span>
+					</v-tooltip>
+					<v-tooltip bottom>
+						<v-btn icon class="mx-0" @click="deleteQuestion(props.item)" slot="activator">
+							<v-icon color="red">delete</v-icon>
+						</v-btn>
+						<span>Удалить</span>
+					</v-tooltip>
+				</td>
+			</template>
+		</v-data-table>
 	</v-flex>
 	<v-dialog v-model="form.isVisible" max-width="500px">
 		<v-card>
@@ -90,6 +104,13 @@
 				test_id: 0,
 				id: 0
 			}),
+			headers: [
+				{ text: 'ID', value: 'id', align: 'left' },
+				{ text: 'Вопрос', value: 'body', align: 'left' },
+				{ text: 'Ответ', value: 'answer', align: 'left' },
+				{ text: 'Баллы', value: 'points', align: 'left' },
+				{ text: 'Действия', value: 'name', align: 'left', sortable: false },
+			],
 			loading: false,
 			editing: false,
 			rules: {

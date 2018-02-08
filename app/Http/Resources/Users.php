@@ -18,10 +18,11 @@ class Users extends Resource
 			'id' => $this->id,
 			'login' => $this->login,
 			'email' => $this->when(\Auth::guard('api')->user()->isAdmin(), $this->email),
-			'role' => $this->when(\Auth::guard('api')->user()->isAdmin(), $this->role),
+			'role' => $this->role,
 			'first_name' => $this->first_name,
 			'middle_name' => $this->middle_name,
 			'last_name' => $this->last_name,
+			'full_name' => $this->last_name . ' ' . $this->first_name . ' ' . $this->middle_name,
 			'registration_date' => $this->when(\Auth::guard('api')->user()->isAdmin(), $this->created_at),
 		];
 	}

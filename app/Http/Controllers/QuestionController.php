@@ -8,6 +8,11 @@ use DLC\Http\Resources\Questions;
 
 class QuestionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     public function index()
     {
     	return Questions::collection(Question::all());

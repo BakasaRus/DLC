@@ -10,7 +10,7 @@ class TestController extends Controller
 {
 	public function __construct()
 	{
-		$this->middleware('api');
+		$this->middleware('auth:api');
 	}
 	
 	public function index()
