@@ -1,10 +1,84 @@
 webpackJsonp([1],{
 
+/***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/views/Dashboard.vue":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	data: function data() {
+		return {
+			info: {}
+		};
+	},
+
+	created: function created() {
+		var _this = this;
+
+		window.axios.get('/api/dashboard').then(function (response) {
+			return _this.info = response.data;
+		}).catch(function (error) {
+			return console.log(error);
+		});
+	}
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/views/Layouts/App.vue":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -80,7 +154,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 	methods: {
 		logout: function logout() {
-			this.$root.auth.logout();
+			this.$root.auth.logout().then(function (response) {
+				return console.log(response);
+			}).catch(function (error) {
+				console.log('Looks like we have troubles logging you out');console.log(error);
+			});
 		}
 	}
 });
@@ -744,19 +822,103 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
 		return {
 			test: {},
-			form: new window.Form({
+			questionForm: new window.Form({
 				body: '',
 				answer: '',
 				points: 1,
 				test_id: 0,
 				id: 0
 			}),
-			headers: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Вопрос', value: 'body', align: 'left' }, { text: 'Ответ', value: 'answer', align: 'left' }, { text: 'Баллы', value: 'points', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }],
+			userForm: new window.Form({
+				ids: [],
+				status: 0,
+				test_id: 0
+			}),
+			questionHeaders: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Вопрос', value: 'body', align: 'left' }, { text: 'Ответ', value: 'answer', align: 'left' }, { text: 'Баллы', value: 'points', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }],
+			usersHeaders: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'ФИО', value: 'full_name', align: 'left' }, { text: 'Статус', value: 'test.status', align: 'left' }, { text: 'Количество баллов', value: 'test.points', align: 'left' }, { text: 'Максимальный балл', value: 'test.max_points', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }],
 			loading: false,
 			editing: false,
 			rules: {
@@ -769,7 +931,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 	mounted: function mounted() {
 		// Это должно работать, но почему-то не
-		this.form.ref = this.$refs.form;
+		this.questionForm.ref = this.$refs.questionForm;
 	},
 	created: function created() {
 		this.loadTest();
@@ -777,10 +939,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 	computed: {
-		formCaption: function formCaption() {
+		questionFormCaption: function questionFormCaption() {
 			return this.editing ? 'Изменение вопроса' : 'Создание вопроса';
 		},
-		formActionBtn: function formActionBtn() {
+		questionFormActionBtn: function questionFormActionBtn() {
 			return this.editing ? 'Сохранить' : 'Добавить';
 		}
 	},
@@ -794,33 +956,33 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 			window.axios.get('/api/tests/' + this.$route.params.id).then(function (response) {
 				_this.test = response.data.data;
-				_this.form.test_id = _this.test.id;
+				_this.questionForm.test_id = _this.test.id;
 			}).catch(function (error) {
 				console.log(error);
 			});
 		},
-		formAction: function formAction() {
+		questionFormAction: function questionFormAction() {
 			if (this.editing) this.updateQuestion();else this.createQuestion();
 		},
 		toggleCreatingQuestion: function toggleCreatingQuestion() {
-			this.form.ref = this.$refs.form;
+			this.questionForm.ref = this.$refs.questionForm;
 			this.editing = false;
-			this.form.reset();
-			this.form.show();
+			this.questionForm.reset();
+			this.questionForm.show();
 		},
 		toggleEditingQuestion: function toggleEditingQuestion(test) {
-			this.form.ref = this.$refs.form;
+			this.questionForm.ref = this.$refs.questionForm;
 			this.editing = true;
-			this.form.setData(test);
-			this.form.show();
+			this.questionForm.setData(test);
+			this.questionForm.show();
 		},
 		createQuestion: function createQuestion() {
 			var _this2 = this;
 
-			if (this.form.validate()) {
-				window.axios.post('/api/questions', this.form.data()).then(function (response) {
-					_this2.form.hide();
-					_this2.form.reset();
+			if (this.questionForm.validate()) {
+				window.axios.post('/api/questions', this.questionForm.data()).then(function (response) {
+					_this2.questionForm.hide();
+					_this2.questionForm.reset();
 					_this2.loadTest();
 				}).catch(function (error) {
 					console.log(error.data);
@@ -830,11 +992,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		updateQuestion: function updateQuestion() {
 			var _this3 = this;
 
-			if (this.form.validate()) {
-				window.axios.patch('/api/questions/' + this.form.id, this.form.data()).then(function (response) {
+			if (this.questionForm.validate()) {
+				window.axios.patch('/api/questions/' + this.questionForm.id, this.questionForm.data()).then(function (response) {
 					_this3.loadTest();
-					_this3.form.hide();
-					_this3.form.reset();
+					_this3.questionForm.hide();
+					_this3.questionForm.reset();
 				}).catch(function (error) {
 					console.log(error.data);
 				});
@@ -848,6 +1010,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			}).catch(function (error) {
 				console.log(error.data);
 			});
+		}
+	},
+
+	filters: {
+		readableStatus: function readableStatus(status) {
+			switch (status) {
+				case 0:
+					return 'Доступен';
+				case 1:
+					return 'В процессе';
+				case 2:
+					return 'Пройден';
+				case null:
+					return 'Скрыт';
+				default:
+					return 'Неизвестный (' + status + ')';
+			}
 		}
 	}
 });
@@ -1071,20 +1250,17 @@ var render = function() {
             [
               _c(
                 "v-list-tile",
-                {
-                  attrs: { to: "/subjects" },
-                  on: { click: function($event) {} }
-                },
+                { attrs: { to: "/" }, on: { click: function($event) {} } },
                 [
                   _c(
                     "v-list-tile-action",
-                    [_c("v-icon", [_vm._v("subject")])],
+                    [_c("v-icon", [_vm._v("dashboard")])],
                     1
                   ),
                   _vm._v(" "),
                   _c(
                     "v-list-tile-content",
-                    [_c("v-list-tile-title", [_vm._v("Предметы")])],
+                    [_c("v-list-tile-title", [_vm._v("Главная страница")])],
                     1
                   )
                 ],
@@ -1097,13 +1273,13 @@ var render = function() {
                 [
                   _c(
                     "v-list-tile-action",
-                    [_c("v-icon", [_vm._v("device_hub")])],
+                    [_c("v-icon", [_vm._v("library_books")])],
                     1
                   ),
                   _vm._v(" "),
                   _c(
                     "v-list-tile-content",
-                    [_c("v-list-tile-title", [_vm._v("Тесты")])],
+                    [_c("v-list-tile-title", [_vm._v("Доступные тесты")])],
                     1
                   )
                 ],
@@ -1112,22 +1288,124 @@ var render = function() {
               _vm._v(" "),
               _c(
                 "v-list-tile",
-                { attrs: { to: "/users" }, on: { click: function($event) {} } },
+                { attrs: { to: "/stats" }, on: { click: function($event) {} } },
                 [
                   _c(
                     "v-list-tile-action",
-                    [_c("v-icon", [_vm._v("group")])],
+                    [_c("v-icon", [_vm._v("assessment")])],
                     1
                   ),
                   _vm._v(" "),
                   _c(
                     "v-list-tile-content",
-                    [_c("v-list-tile-title", [_vm._v("Пользователи")])],
+                    [_c("v-list-tile-title", [_vm._v("Статистика")])],
                     1
                   )
                 ],
                 1
               ),
+              _vm._v(" "),
+              this.$root.user.role >= 1
+                ? _c(
+                    "v-list-group",
+                    { attrs: { "prepend-icon": "supervisor_account" } },
+                    [
+                      _c(
+                        "v-list-tile",
+                        { attrs: { slot: "activator" }, slot: "activator" },
+                        [
+                          _c(
+                            "v-list-tile-content",
+                            [
+                              _c("v-list-tile-title", [
+                                _vm._v("Администрирование")
+                              ])
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile",
+                        {
+                          attrs: { to: "/admin/subjects" },
+                          on: { click: function($event) {} }
+                        },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [_c("v-icon", [_vm._v("subject")])],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [
+                              _c("v-list-tile-title", [
+                                _vm._v("Список предметов")
+                              ])
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile",
+                        {
+                          attrs: { to: "/admin/tests" },
+                          on: { click: function($event) {} }
+                        },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [_c("v-icon", [_vm._v("library_books")])],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [
+                              _c("v-list-tile-title", [_vm._v("Список тестов")])
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile",
+                        {
+                          attrs: { to: "/admin/users" },
+                          on: { click: function($event) {} }
+                        },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [_c("v-icon", [_vm._v("group")])],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [
+                              _c("v-list-tile-title", [
+                                _vm._v("Список пользователей")
+                              ])
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                : _vm._e(),
               _vm._v(" "),
               _c(
                 "v-list-tile",
@@ -1513,6 +1791,71 @@ if (false) {
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-361a3c51\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/views/Dashboard.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.info
+    ? _c(
+        "v-layout",
+        { attrs: { row: "", wrap: "", "justify-center": "" } },
+        [
+          _c(
+            "v-flex",
+            { attrs: { xs4: "" } },
+            [
+              _c(
+                "v-card",
+                [
+                  _c("v-card-title", { attrs: { "primary-title": "" } }, [
+                    _c("div", { staticClass: "headline" }, [
+                      _vm._v("Статистика по вопросам")
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("v-card-text", [
+                    _c("div", { staticClass: "body-2" }, [
+                      _vm._v(
+                        "Количество предметов: " + _vm._s(_vm.info.subjects)
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "body-2" }, [
+                      _vm._v("Количество тестов: " + _vm._s(_vm.info.tests))
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "body-2" }, [
+                      _vm._v(
+                        "Количество вопросов: " + _vm._s(_vm.info.questions)
+                      )
+                    ])
+                  ])
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      )
+    : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-361a3c51", module.exports)
+  }
+}
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-36a5cbbc\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/views/Subjects/Show.vue":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1649,7 +1992,42 @@ var render = function() {
                         "Всего вопросов: " + _vm._s(_vm.test.questions.length)
                       )
                     ])
-                  ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    [
+                      _c(
+                        "v-tooltip",
+                        { attrs: { bottom: "" } },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              staticClass: "mx-0",
+                              attrs: { slot: "activator", icon: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.toggleEditingQuestion(_vm.props.item)
+                                }
+                              },
+                              slot: "activator"
+                            },
+                            [
+                              _c("v-icon", { attrs: { color: "green" } }, [
+                                _vm._v("face")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c("span", [_vm._v("Статус пользователей")])
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
                 ],
                 1
               )
@@ -1666,7 +2044,7 @@ var render = function() {
               _c("v-data-table", {
                 staticClass: "elevation-1",
                 attrs: {
-                  headers: _vm.headers,
+                  headers: _vm.questionHeaders,
                   items: _vm.test.questions,
                   "hide-actions": "",
                   loading: _vm.loading
@@ -1759,15 +2137,122 @@ var render = function() {
           ),
           _vm._v(" "),
           _c(
+            "v-flex",
+            { attrs: { xs12: "" } },
+            [
+              _c("v-data-table", {
+                staticClass: "elevation-1",
+                attrs: {
+                  headers: _vm.usersHeaders,
+                  items: _vm.test.users,
+                  "hide-actions": "",
+                  loading: _vm.loading
+                },
+                scopedSlots: _vm._u([
+                  {
+                    key: "items",
+                    fn: function(props) {
+                      return [
+                        _c("td", [_vm._v(_vm._s(props.item.id))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(props.item.full_name))]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v(
+                            _vm._s(
+                              _vm._f("readableStatus")(props.item.test.status)
+                            )
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(props.item.test.points))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(props.item.test.max_points))]),
+                        _vm._v(" "),
+                        _c(
+                          "td",
+                          [
+                            _c(
+                              "v-tooltip",
+                              { attrs: { bottom: "" } },
+                              [
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "mx-0",
+                                    attrs: { slot: "activator", icon: "" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.toggleEditingQuestion(props.item)
+                                      }
+                                    },
+                                    slot: "activator"
+                                  },
+                                  [
+                                    _c(
+                                      "v-icon",
+                                      { attrs: { color: "green" } },
+                                      [_vm._v("edit")]
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("span", [_vm._v("Редактировать")])
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "v-tooltip",
+                              { attrs: { bottom: "" } },
+                              [
+                                _c(
+                                  "v-btn",
+                                  {
+                                    staticClass: "mx-0",
+                                    attrs: { slot: "activator", icon: "" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.deleteQuestion(props.item)
+                                      }
+                                    },
+                                    slot: "activator"
+                                  },
+                                  [
+                                    _c("v-icon", { attrs: { color: "red" } }, [
+                                      _vm._v("delete")
+                                    ])
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("span", [_vm._v("Удалить")])
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ]
+                    }
+                  }
+                ])
+              })
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
             "v-dialog",
             {
               attrs: { "max-width": "500px" },
               model: {
-                value: _vm.form.isVisible,
+                value: _vm.questionForm.isVisible,
                 callback: function($$v) {
-                  _vm.$set(_vm.form, "isVisible", $$v)
+                  _vm.$set(_vm.questionForm, "isVisible", $$v)
                 },
-                expression: "form.isVisible"
+                expression: "questionForm.isVisible"
               }
             },
             [
@@ -1775,21 +2260,21 @@ var render = function() {
                 "v-card",
                 [
                   _c(
-                    "v-form",
+                    "v-questionForm",
                     {
-                      ref: "form",
+                      ref: "questionForm",
                       model: {
-                        value: _vm.form.isValid,
+                        value: _vm.questionForm.isValid,
                         callback: function($$v) {
-                          _vm.$set(_vm.form, "isValid", $$v)
+                          _vm.$set(_vm.questionForm, "isValid", $$v)
                         },
-                        expression: "form.isValid"
+                        expression: "questionForm.isValid"
                       }
                     },
                     [
                       _c("v-card-title", [
                         _c("span", { staticClass: "headline" }, [
-                          _vm._v(_vm._s(_vm.formCaption))
+                          _vm._v(_vm._s(_vm.questionFormCaption))
                         ])
                       ]),
                       _vm._v(" "),
@@ -1805,11 +2290,11 @@ var render = function() {
                               rules: [_vm.rules.required]
                             },
                             model: {
-                              value: _vm.form.body,
+                              value: _vm.questionForm.body,
                               callback: function($$v) {
-                                _vm.$set(_vm.form, "body", $$v)
+                                _vm.$set(_vm.questionForm, "body", $$v)
                               },
-                              expression: "form.body"
+                              expression: "questionForm.body"
                             }
                           }),
                           _vm._v(" "),
@@ -1822,11 +2307,11 @@ var render = function() {
                               rules: [_vm.rules.required]
                             },
                             model: {
-                              value: _vm.form.answer,
+                              value: _vm.questionForm.answer,
                               callback: function($$v) {
-                                _vm.$set(_vm.form, "answer", $$v)
+                                _vm.$set(_vm.questionForm, "answer", $$v)
                               },
-                              expression: "form.answer"
+                              expression: "questionForm.answer"
                             }
                           }),
                           _vm._v(" "),
@@ -1838,11 +2323,11 @@ var render = function() {
                               type: "number"
                             },
                             model: {
-                              value: _vm.form.points,
+                              value: _vm.questionForm.points,
                               callback: function($$v) {
-                                _vm.$set(_vm.form, "points", $$v)
+                                _vm.$set(_vm.questionForm, "points", $$v)
                               },
-                              expression: "form.points"
+                              expression: "questionForm.points"
                             }
                           })
                         ],
@@ -1860,7 +2345,7 @@ var render = function() {
                               attrs: { color: "blue darken-1", flat: "" },
                               on: {
                                 click: function($event) {
-                                  _vm.form.hide()
+                                  _vm.questionForm.hide()
                                 }
                               }
                             },
@@ -1873,7 +2358,7 @@ var render = function() {
                               attrs: { color: "blue darken-1", flat: "" },
                               on: {
                                 click: function($event) {
-                                  _vm.form.reset()
+                                  _vm.questionForm.reset()
                                 }
                               }
                             },
@@ -1886,11 +2371,158 @@ var render = function() {
                               attrs: {
                                 color: "blue darken-1",
                                 flat: "",
-                                disabled: !_vm.form.isValid
+                                disabled: !_vm.questionForm.isValid
                               },
-                              on: { click: _vm.formAction }
+                              on: { click: _vm.questionFormAction }
                             },
-                            [_vm._v(_vm._s(_vm.formActionBtn))]
+                            [_vm._v(_vm._s(_vm.questionFormActionBtn))]
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-dialog",
+            {
+              attrs: { "max-width": "500px" },
+              model: {
+                value: _vm.questionForm.isVisible,
+                callback: function($$v) {
+                  _vm.$set(_vm.questionForm, "isVisible", $$v)
+                },
+                expression: "questionForm.isVisible"
+              }
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c(
+                    "v-questionForm",
+                    {
+                      ref: "questionForm",
+                      model: {
+                        value: _vm.questionForm.isValid,
+                        callback: function($$v) {
+                          _vm.$set(_vm.questionForm, "isValid", $$v)
+                        },
+                        expression: "questionForm.isValid"
+                      }
+                    },
+                    [
+                      _c("v-card-title", [
+                        _c("span", { staticClass: "headline" }, [
+                          _vm._v(_vm._s(_vm.questionFormCaption))
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-text",
+                        [
+                          _c("v-text-field", {
+                            attrs: {
+                              label: "Вопрос",
+                              required: "",
+                              "multi-line": "",
+                              hint: "В будущем здесь будет поддержка Markdown",
+                              rules: [_vm.rules.required]
+                            },
+                            model: {
+                              value: _vm.questionForm.body,
+                              callback: function($$v) {
+                                _vm.$set(_vm.questionForm, "body", $$v)
+                              },
+                              expression: "questionForm.body"
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("v-text-field", {
+                            attrs: {
+                              label: "Ответ",
+                              required: "",
+                              hint:
+                                "В будущем здесь будет поддержка регулярных выражений",
+                              rules: [_vm.rules.required]
+                            },
+                            model: {
+                              value: _vm.questionForm.answer,
+                              callback: function($$v) {
+                                _vm.$set(_vm.questionForm, "answer", $$v)
+                              },
+                              expression: "questionForm.answer"
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("v-text-field", {
+                            attrs: {
+                              label: "Баллы за вопрос",
+                              required: "",
+                              rules: [_vm.rules.required],
+                              type: "number"
+                            },
+                            model: {
+                              value: _vm.questionForm.points,
+                              callback: function($$v) {
+                                _vm.$set(_vm.questionForm, "points", $$v)
+                              },
+                              expression: "questionForm.points"
+                            }
+                          })
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-actions",
+                        [
+                          _c("v-spacer"),
+                          _vm._v(" "),
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { color: "blue darken-1", flat: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.questionForm.hide()
+                                }
+                              }
+                            },
+                            [_vm._v("Закрыть")]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { color: "blue darken-1", flat: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.questionForm.reset()
+                                }
+                              }
+                            },
+                            [_vm._v("Сбросить")]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: {
+                                color: "blue darken-1",
+                                flat: "",
+                                disabled: !_vm.questionForm.isValid
+                              },
+                              on: { click: _vm.questionFormAction }
+                            },
+                            [_vm._v(_vm._s(_vm.questionFormActionBtn))]
                           )
                         ],
                         1
@@ -2050,7 +2682,7 @@ var render = function() {
                                 attrs: {
                                   slot: "activator",
                                   icon: "",
-                                  to: "/tests/" + props.item.id
+                                  to: "/admin/tests/" + props.item.id
                                 },
                                 slot: "activator"
                               },
@@ -2418,7 +3050,7 @@ var render = function() {
                     [
                       _c(
                         "v-toolbar",
-                        { attrs: { color: "primary" } },
+                        { attrs: { color: "primary", dark: "" } },
                         [_c("v-toolbar-title", [_vm._v("Вход в ЦДО")])],
                         1
                       ),
@@ -2548,12 +3180,6 @@ new Vue({
 		}).catch(function (error) {
 			return console.log(error);
 		});
-	},
-
-	methods: {
-		logout: function logout() {
-			this.auth.logout();
-		}
 	}
 });
 
@@ -2621,20 +3247,23 @@ if (token) {
 
 
 var routes = [{
-	path: '/subjects',
+	path: '/admin/subjects',
 	component: __webpack_require__("./resources/assets/js/views/Subjects/Index.vue")
 }, {
-	path: '/subjects/:id',
+	path: '/admin/subjects/:id',
 	component: __webpack_require__("./resources/assets/js/views/Subjects/Show.vue")
 }, {
-	path: '/tests',
+	path: '/admin/tests',
 	component: __webpack_require__("./resources/assets/js/views/Tests/Index.vue")
 }, {
-	path: '/tests/:id',
+	path: '/admin/tests/:id',
 	component: __webpack_require__("./resources/assets/js/views/Tests/Show.vue")
 }, {
-	path: '/users',
+	path: '/admin/users',
 	component: __webpack_require__("./resources/assets/js/views/Users/Index.vue")
+}, {
+	path: '/',
+	component: __webpack_require__("./resources/assets/js/views/Dashboard.vue")
 }];
 
 /* harmony default export */ __webpack_exports__["a"] = (new __WEBPACK_IMPORTED_MODULE_0_vue_router__["default"]({
@@ -2696,9 +3325,18 @@ var Auth = function () {
 	}, {
 		key: 'logout',
 		value: function logout() {
-			window.localStorage.removeItem('dlc_tokens');
-			this.tokens.access = '';
-			this.tokens.refresh = '';
+			var _this2 = this;
+
+			return new Promise(function (resolve, reject) {
+				window.axios.get('/api/logout').then(function (response) {
+					window.localStorage.removeItem('dlc_tokens');
+					_this2.tokens.access = '';
+					_this2.tokens.refresh = '';
+					resolve(response);
+				}).catch(function (response) {
+					return reject(response);
+				});
+			});
 		}
 	}, {
 		key: 'isLoggedIn',
@@ -2777,6 +3415,54 @@ var Form = function () {
 }();
 
 /* harmony default export */ __webpack_exports__["a"] = (Form);
+
+/***/ }),
+
+/***/ "./resources/assets/js/views/Dashboard.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__("./node_modules/vue-loader/lib/component-normalizer.js")
+/* script */
+var __vue_script__ = __webpack_require__("./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/views/Dashboard.vue")
+/* template */
+var __vue_template__ = __webpack_require__("./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-361a3c51\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/views/Dashboard.vue")
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/views/Dashboard.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-361a3c51", Component.options)
+  } else {
+    hotAPI.reload("data-v-361a3c51", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
 
 /***/ }),
 

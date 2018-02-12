@@ -2,30 +2,61 @@
 	<div>
 	<v-navigation-drawer clipped fixed v-model="drawer" app>
 		<v-list dense>
-			<v-list-tile @click="" to="/subjects">
+			<v-list-tile @click="" to="/">
 				<v-list-tile-action>
-					<v-icon>subject</v-icon>
+					<v-icon>dashboard</v-icon>
 				</v-list-tile-action>
 				<v-list-tile-content>
-					<v-list-tile-title>Предметы</v-list-tile-title>
+					<v-list-tile-title>Главная страница</v-list-tile-title>
 				</v-list-tile-content>
 			</v-list-tile>
 			<v-list-tile @click="" to="/tests">
 				<v-list-tile-action>
-					<v-icon>device_hub</v-icon>
+					<v-icon>library_books</v-icon>
 				</v-list-tile-action>
 				<v-list-tile-content>
-					<v-list-tile-title>Тесты</v-list-tile-title>
+					<v-list-tile-title>Доступные тесты</v-list-tile-title>
 				</v-list-tile-content>
 			</v-list-tile>
-			<v-list-tile @click="" to="/users">
+			<v-list-tile @click="" to="/stats">
 				<v-list-tile-action>
-					<v-icon>group</v-icon>
+					<v-icon>assessment</v-icon>
 				</v-list-tile-action>
 				<v-list-tile-content>
-					<v-list-tile-title>Пользователи</v-list-tile-title>
+					<v-list-tile-title>Статистика</v-list-tile-title>
 				</v-list-tile-content>
 			</v-list-tile>
+			<v-list-group prepend-icon="supervisor_account" v-if="this.$root.user.role >= 1">
+				<v-list-tile slot="activator">
+					<v-list-tile-content>
+						<v-list-tile-title>Администрирование</v-list-tile-title>
+					</v-list-tile-content>
+				</v-list-tile>
+				<v-list-tile @click="" to="/admin/subjects">
+					<v-list-tile-action>
+						<v-icon>subject</v-icon>
+					</v-list-tile-action>
+					<v-list-tile-content>
+						<v-list-tile-title>Список предметов</v-list-tile-title>
+					</v-list-tile-content>
+				</v-list-tile>
+				<v-list-tile @click="" to="/admin/tests">
+					<v-list-tile-action>
+						<v-icon>library_books</v-icon>
+					</v-list-tile-action>
+					<v-list-tile-content>
+						<v-list-tile-title>Список тестов</v-list-tile-title>
+					</v-list-tile-content>
+				</v-list-tile>
+				<v-list-tile @click="" to="/admin/users">
+					<v-list-tile-action>
+						<v-icon>group</v-icon>
+					</v-list-tile-action>
+					<v-list-tile-content>
+						<v-list-tile-title>Список пользователей</v-list-tile-title>
+					</v-list-tile-content>
+				</v-list-tile>
+			</v-list-group>
 			<v-list-tile @click="logout">
 				<v-list-tile-action>
 					<v-icon>exit_to_app</v-icon>
@@ -66,7 +97,9 @@
 		},
 		methods: {
 			logout() {
-				this.$root.auth.logout();
+				this.$root.auth.logout()
+					.then(response => console.log(response))
+					.catch(error => {console.log('Looks like we have troubles logging you out'); console.log(error)});
 			}
 		}
 	}

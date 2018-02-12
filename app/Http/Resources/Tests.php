@@ -23,6 +23,7 @@ class Tests extends Resource
 			'subject' => new Subjects($this->subject),
 			'questions_count' => $this->questions_count,
 			'questions' => Questions::collection($this->whenLoaded('questions')),
+			'users' => Users::collection($this->whenLoaded('users')),
 			'created_at' => $this->created_at
 		];
 	}

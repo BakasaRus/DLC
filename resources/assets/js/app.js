@@ -18,10 +18,5 @@ new Vue({
 		window.axios.get('/api/user')
 			.then(response => this.user = response.data)
 			.catch(error => console.log(error));
-	},
-	methods: {
-		logout() {
-			this.auth.logout();
-		}
 	}
 });

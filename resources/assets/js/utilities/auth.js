@@ -35,9 +35,16 @@ class Auth {
 	}
 
 	logout() {
-		window.localStorage.removeItem('dlc_tokens');
-		this.tokens.access = '';
-		this.tokens.refresh = '';
+		return new Promise((resolve, reject) => { 
+			window.axios.get('/api/logout')
+			.then(response => {
+				window.localStorage.removeItem('dlc_tokens');
+				this.tokens.access = '';
+				this.tokens.refresh = '';
+				resolve(response);
+			})
+			.catch(response => reject(response));
+		});
 	}
 
 	isLoggedIn() {

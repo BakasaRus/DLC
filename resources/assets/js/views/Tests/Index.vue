@@ -27,7 +27,7 @@
 						<span>Удалить</span>
 					</v-tooltip>
 					<v-tooltip bottom>
-						<v-btn icon class="mx-0" :to="'/tests/' + props.item.id" slot="activator">
+						<v-btn icon class="mx-0" :to="'/admin/tests/' + props.item.id" slot="activator">
 							<v-icon color="blue">chevron_right</v-icon>
 						</v-btn>
 						<span>Работа с вопросами</span>

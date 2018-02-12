@@ -17,6 +17,19 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::middleware('auth:api')->get('/logout', function (Request $request) {
+    $request->user()->token()->revoke();
+    return ['message' => 'Success!'];
+});
+
+Route::middleware('auth:api')->get('/dashboard', function () {
+	return [
+		'tests' => DLC\Test::count(),
+		'subjects' => DLC\Subject::count(),
+		'questions' => DLC\Question::count()
+	];
+});
+
 Route::get('/users', 'UserController@index');
 Route::get('/users/{user}', 'UserController@show');
 

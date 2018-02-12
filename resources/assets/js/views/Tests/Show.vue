@@ -11,6 +11,14 @@
 				<div class="body-2">Количество вопросов: {{ test.questions_count }}</div>
 				<div class="body-2">Всего вопросов: {{ test.questions.length }}</div>
 			</v-card-text>
+			<v-card-actions>
+				<v-tooltip bottom>
+					<v-btn icon class="mx-0" @click="toggleEditingQuestion(props.item)" slot="activator">
+						<v-icon color="green">face</v-icon>
+					</v-btn>
+					<span>Статус пользователей</span>
+				</v-tooltip>
+			</v-card-actions>
 		</v-card>
 	</v-flex>
 	<v-flex xs4>
@@ -20,7 +28,7 @@
 	</v-flex>
 	<v-flex xs12>
 		<v-data-table
-			:headers="headers"
+			:headers="questionHeaders"
 			:items="test.questions"
 			hide-actions
 			class="elevation-1"
@@ -48,11 +56,42 @@
 			</template>
 		</v-data-table>
 	</v-flex>
-	<v-dialog v-model="form.isVisible" max-width="500px">
+	<v-flex xs12>
+		<v-data-table
+			:headers="usersHeaders"
+			:items="test.users"
+			hide-actions
+			class="elevation-1"
+			:loading="loading"
+		>
+			<template slot="items" slot-scope="props">
+				<td>{{ props.item.id }}</td>
+				<td>{{ props.item.full_name }}</td>
+				<td>{{ props.item.test.status | readableStatus }}</td>
+				<td>{{ props.item.test.points }}</td>
+				<td>{{ props.item.test.max_points }}</td>
+				<td>
+					<v-tooltip bottom>
+						<v-btn icon class="mx-0" @click="toggleEditingQuestion(props.item)" slot="activator">
+							<v-icon color="green">edit</v-icon>
+						</v-btn>
+						<span>Редактировать</span>
+					</v-tooltip>
+					<v-tooltip bottom>
+						<v-btn icon class="mx-0" @click="deleteQuestion(props.item)" slot="activator">
+							<v-icon color="red">delete</v-icon>
+						</v-btn>
+						<span>Удалить</span>
+					</v-tooltip>
+				</td>
+			</template>
+		</v-data-table>
+	</v-flex>
+	<v-dialog v-model="questionForm.isVisible" max-width="500px">
 		<v-card>
-			<v-form v-model="form.isValid" ref="form">
+			<v-questionForm v-model="questionForm.isValid" ref="questionForm">
 			<v-card-title>
-				<span class="headline">{{ formCaption }}</span>
+				<span class="headline">{{ questionFormCaption }}</span>
 			</v-card-title>
 			<v-card-text>
 				<v-text-field 
@@ -60,31 +99,70 @@
 					required
 					multi-line
 					hint="В будущем здесь будет поддержка Markdown"
-					v-model="form.body" 
+					v-model="questionForm.body" 
 					:rules="[rules.required]"
 				></v-text-field>
 				<v-text-field 
 					label="Ответ" 
 					required
 					hint="В будущем здесь будет поддержка регулярных выражений"
-					v-model="form.answer" 
+					v-model="questionForm.answer" 
 					:rules="[rules.required]"
 				></v-text-field>
 				<v-text-field 
 					label="Баллы за вопрос" 
 					required
-					v-model="form.points" 
+					v-model="questionForm.points" 
 					:rules="[rules.required]"
 					type="number"
 				></v-text-field>
 			</v-card-text>
 			<v-card-actions>
 				<v-spacer></v-spacer>
-				<v-btn color="blue darken-1" flat @click="form.hide()">Закрыть</v-btn>
-				<v-btn color="blue darken-1" flat @click="form.reset()">Сбросить</v-btn>
-				<v-btn color="blue darken-1" flat @click="formAction" :disabled="!form.isValid">{{ formActionBtn }}</v-btn>
+				<v-btn color="blue darken-1" flat @click="questionForm.hide()">Закрыть</v-btn>
+				<v-btn color="blue darken-1" flat @click="questionForm.reset()">Сбросить</v-btn>
+				<v-btn color="blue darken-1" flat @click="questionFormAction" :disabled="!questionForm.isValid">{{ questionFormActionBtn }}</v-btn>
 			</v-card-actions>
-		</v-form>
+		</v-questionForm>
+		</v-card>
+	</v-dialog>
+	<v-dialog v-model="questionForm.isVisible" max-width="500px">
+		<v-card>
+			<v-questionForm v-model="questionForm.isValid" ref="questionForm">
+			<v-card-title>
+				<span class="headline">{{ questionFormCaption }}</span>
+			</v-card-title>
+			<v-card-text>
+				<v-text-field 
+					label="Вопрос" 
+					required
+					multi-line
+					hint="В будущем здесь будет поддержка Markdown"
+					v-model="questionForm.body" 
+					:rules="[rules.required]"
+				></v-text-field>
+				<v-text-field 
+					label="Ответ" 
+					required
+					hint="В будущем здесь будет поддержка регулярных выражений"
+					v-model="questionForm.answer" 
+					:rules="[rules.required]"
+				></v-text-field>
+				<v-text-field 
+					label="Баллы за вопрос" 
+					required
+					v-model="questionForm.points" 
+					:rules="[rules.required]"
+					type="number"
+				></v-text-field>
+			</v-card-text>
+			<v-card-actions>
+				<v-spacer></v-spacer>
+				<v-btn color="blue darken-1" flat @click="questionForm.hide()">Закрыть</v-btn>
+				<v-btn color="blue darken-1" flat @click="questionForm.reset()">Сбросить</v-btn>
+				<v-btn color="blue darken-1" flat @click="questionFormAction" :disabled="!questionForm.isValid">{{ questionFormActionBtn }}</v-btn>
+			</v-card-actions>
+		</v-questionForm>
 		</v-card>
 	</v-dialog>
 	<v-btn fixed dark fab bottom right color="indigo" @click="toggleCreatingQuestion">
@@ -97,18 +175,31 @@
 	export default {
 		data: () => ({
 			test: {},
-			form: new window.Form({
+			questionForm: new window.Form({
 				body: '',
 				answer: '',
 				points: 1,
 				test_id: 0,
 				id: 0
 			}),
-			headers: [
+			userForm: new window.Form({
+				ids: [],
+				status: 0,
+				test_id: 0
+			}),
+			questionHeaders: [
 				{ text: 'ID', value: 'id', align: 'left' },
 				{ text: 'Вопрос', value: 'body', align: 'left' },
 				{ text: 'Ответ', value: 'answer', align: 'left' },
 				{ text: 'Баллы', value: 'points', align: 'left' },
+				{ text: 'Действия', value: 'name', align: 'left', sortable: false },
+			],
+			usersHeaders: [
+				{ text: 'ID', value: 'id', align: 'left' },
+				{ text: 'ФИО', value: 'full_name', align: 'left' },
+				{ text: 'Статус', value: 'test.status', align: 'left' },
+				{ text: 'Количество баллов', value: 'test.points', align: 'left' },
+				{ text: 'Максимальный балл', value: 'test.max_points', align: 'left' },
 				{ text: 'Действия', value: 'name', align: 'left', sortable: false },
 			],
 			loading: false,
@@ -120,7 +211,7 @@
 
 		mounted() {
 			// Это должно работать, но почему-то не
-			this.form.ref = this.$refs.form;
+			this.questionForm.ref = this.$refs.questionForm;
 		},
 
 		created() {
@@ -128,10 +219,10 @@
 		},
 
 		computed: {
-			formCaption() {
+			questionFormCaption() {
 				return this.editing ? 'Изменение вопроса' : 'Создание вопроса';
 			},
-			formActionBtn() {
+			questionFormActionBtn() {
 				return this.editing ? 'Сохранить' : 'Добавить';
 			}
 		},
@@ -145,38 +236,38 @@
 				window.axios.get('/api/tests/' + this.$route.params.id)
 					.then(response => {
 						this.test = response.data.data;
-						this.form.test_id = this.test.id;
+						this.questionForm.test_id = this.test.id;
 					})
 					.catch(error => {
 						console.log(error);
 					});
 			},
 
-			formAction() {
+			questionFormAction() {
 				if (this.editing) this.updateQuestion();
 				else this.createQuestion();
 			},
 
 			toggleCreatingQuestion() {
-				this.form.ref = this.$refs.form;
+				this.questionForm.ref = this.$refs.questionForm;
 				this.editing = false;
-				this.form.reset();
-				this.form.show();
+				this.questionForm.reset();
+				this.questionForm.show();
 			},
 
 			toggleEditingQuestion(test) {
-				this.form.ref = this.$refs.form;
+				this.questionForm.ref = this.$refs.questionForm;
 				this.editing = true;
-				this.form.setData(test);
-				this.form.show();
+				this.questionForm.setData(test);
+				this.questionForm.show();
 			},
 
 			createQuestion() {
-				if (this.form.validate()) {
-					window.axios.post('/api/questions', this.form.data())
+				if (this.questionForm.validate()) {
+					window.axios.post('/api/questions', this.questionForm.data())
 						.then(response => {
-							this.form.hide();
-							this.form.reset();
+							this.questionForm.hide();
+							this.questionForm.reset();
 							this.loadTest();
 						})
 						.catch(error => {
@@ -186,12 +277,12 @@
 			},
 
 			updateQuestion() {
-				if (this.form.validate()) {
-					window.axios.patch('/api/questions/' + this.form.id, this.form.data())
+				if (this.questionForm.validate()) {
+					window.axios.patch('/api/questions/' + this.questionForm.id, this.questionForm.data())
 						.then(response => {
 							this.loadTest();
-							this.form.hide();
-							this.form.reset();
+							this.questionForm.hide();
+							this.questionForm.reset();
 						})
 						.catch(error => {
 							console.log(error.data);
@@ -208,6 +299,18 @@
 						console.log(error.data);
 					});
 			},
+		},
+
+		filters: {
+			readableStatus(status) {
+				switch (status) {
+					case 0: return 'Доступен';
+					case 1: return 'В процессе';
+					case 2: return 'Пройден';
+					case null: return 'Скрыт';
+					default: return 'Неизвестный (' + status + ')';
+				}
+			}
 		}
 	}
 </script>

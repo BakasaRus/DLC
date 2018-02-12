@@ -2,24 +2,28 @@ import VueRouter from 'vue-router';
 
 let routes = [
 	{
-		path: '/subjects',
+		path: '/admin/subjects',
 		component: require('./views/Subjects/Index')
 	},
 	{
-		path: '/subjects/:id',
+		path: '/admin/subjects/:id',
 		component: require('./views/Subjects/Show')
 	},
 	{
-		path: '/tests',
+		path: '/admin/tests',
 		component: require('./views/Tests/Index')
 	},
 	{
-		path: '/tests/:id',
+		path: '/admin/tests/:id',
 		component: require('./views/Tests/Show')
 	},
 	{
-		path: '/users',
+		path: '/admin/users',
 		component: require('./views/Users/Index')
+	},
+	{
+		path: '/',
+		component: require('./views/Dashboard')
 	}
 ];
 

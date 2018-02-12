@@ -14,18 +14,18 @@ class CreateTestUserTable extends Migration
     public function up()
     {
         Schema::create('test_user', function (Blueprint $table) {
-            $table->integer('testId')->unsigned();
-            $table->integer('userId')->unsigned();
+            $table->integer('test_id')->unsigned();
+            $table->integer('user_id')->unsigned();
             $table->integer('status');
             // Here should be max score, user score and percentage, but I'll implement it as Eloquent scopes
             $table->timestamps();
 
-            $table->foreign('testId')
+            $table->foreign('test_id')
                   ->references('id')
                   ->on('tests')
                   ->onDelete('cascade');
 
-            $table->foreign('userId')
+            $table->foreign('user_id')
                   ->references('id')
                   ->on('users')
                   ->onDelete('cascade');
@@ -40,8 +40,8 @@ class CreateTestUserTable extends Migration
     public function down()
     {
         Schema::table('test_user', function (Blueprint $table) {
-            $table->dropForeign(['userId']);
-            $table->dropForeign(['testId']);
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['test_id']);
         });
         Schema::dropIfExists('test_user');
     }

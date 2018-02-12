@@ -23,6 +23,7 @@ class Users extends Resource
 			'middle_name' => $this->middle_name,
 			'last_name' => $this->last_name,
 			'full_name' => $this->last_name . ' ' . $this->first_name . ' ' . $this->middle_name,
+			'test' => $this->when($this->test, $this->test),
 			'registration_date' => $this->when(\Auth::guard('api')->user()->isAdmin(), $this->created_at),
 		];
 	}
