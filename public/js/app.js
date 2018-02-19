@@ -491,6 +491,49 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/views/Tests/Available.vue":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	data: function data() {
+		return {
+			tests: [],
+			loading: false
+		};
+	},
+
+	created: function created() {
+		this.loadTests();
+	},
+
+
+	methods: {
+		loadTests: function loadTests() {
+			var _this = this;
+
+			this.loading = true;
+			window.axios.get('/api/user/tests').then(function (response) {
+				_this.tests = response.data.data;
+				_this.loading = false;
+			}).catch(function (error) {
+				console.log(error);
+				_this.loading = false;
+			});
+		}
+	}
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/views/Tests/Index.vue":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -722,6 +765,58 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/views/Tests/Pass.vue":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	data: function data() {
+		return {
+			questions: [],
+			answers: []
+		};
+	},
+	created: function created() {
+		this.loadQuestions(this.$route.params.id);
+	},
+
+
+	methods: {
+		loadQuestions: function loadQuestions(id) {
+			var _this = this;
+
+			window.axios.get('/api/user/tests/' + id).then(function (response) {
+				return _this.questions = response.data.data;
+			}).catch(function (error) {
+				return console.log(error);
+			});
+		}
+	}
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/views/Tests/Show.vue":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -900,11 +995,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
 		return {
 			test: {},
+			users: [],
 			questionForm: new window.Form({
 				body: '',
 				answer: '',
@@ -913,14 +1015,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				id: 0
 			}),
 			userForm: new window.Form({
-				ids: [],
+				users_id: [],
 				status: 0,
 				test_id: 0
 			}),
 			questionHeaders: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Вопрос', value: 'body', align: 'left' }, { text: 'Ответ', value: 'answer', align: 'left' }, { text: 'Баллы', value: 'points', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }],
 			usersHeaders: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'ФИО', value: 'full_name', align: 'left' }, { text: 'Статус', value: 'test.status', align: 'left' }, { text: 'Количество баллов', value: 'test.points', align: 'left' }, { text: 'Максимальный балл', value: 'test.max_points', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }],
+			statuses: [{ id: 0, name: 'Доступен' }, { id: 0, name: 'В процессе' }, { id: 0, name: 'Пройден' }, { id: 0, name: 'Скрыт' }],
 			loading: false,
-			editing: false,
+			editingQuesion: false,
+			editingUsers: false,
 			rules: {
 				required: function required(value) {
 					return !!value || 'Это поле обязательно для заполнения';
@@ -940,10 +1044,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 	computed: {
 		questionFormCaption: function questionFormCaption() {
-			return this.editing ? 'Изменение вопроса' : 'Создание вопроса';
+			return this.editingQuesion ? 'Изменение вопроса' : 'Создание вопроса';
 		},
 		questionFormActionBtn: function questionFormActionBtn() {
-			return this.editing ? 'Сохранить' : 'Добавить';
+			return this.editingQuesion ? 'Сохранить' : 'Добавить';
+		},
+		userFormCaption: function userFormCaption() {
+			return this.editingUsers ? 'Изменение статуса' : 'Добавление теста пользователям';
+		},
+		userFormActionBtn: function userFormActionBtn() {
+			return this.editingUsers ? 'Изменить' : 'Добавить';
 		}
 	},
 
@@ -961,52 +1071,80 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				console.log(error);
 			});
 		},
+		loadUsers: function loadUsers() {
+			var _this2 = this;
+
+			window.axios.get('/api/users').then(function (response) {
+				_this2.users = response.data.data;
+				_this2.loading = false;
+			}).catch(function (error) {
+				_this2.users = [{ login: error.message }];
+				_this2.loading = false;
+			});
+		},
 		questionFormAction: function questionFormAction() {
-			if (this.editing) this.updateQuestion();else this.createQuestion();
+			if (this.editingQuesion) this.updateQuestion();else this.createQuestion();
+		},
+		userFormAction: function userFormAction() {
+			if (this.editingUsers) this.updateUser();else this.createUser();
 		},
 		toggleCreatingQuestion: function toggleCreatingQuestion() {
 			this.questionForm.ref = this.$refs.questionForm;
-			this.editing = false;
+			this.editingQuesion = false;
 			this.questionForm.reset();
 			this.questionForm.show();
 		},
 		toggleEditingQuestion: function toggleEditingQuestion(test) {
 			this.questionForm.ref = this.$refs.questionForm;
-			this.editing = true;
+			this.editingQuesion = true;
 			this.questionForm.setData(test);
 			this.questionForm.show();
 		},
-		createQuestion: function createQuestion() {
-			var _this2 = this;
-
-			if (this.questionForm.validate()) {
-				window.axios.post('/api/questions', this.questionForm.data()).then(function (response) {
-					_this2.questionForm.hide();
-					_this2.questionForm.reset();
-					_this2.loadTest();
-				}).catch(function (error) {
-					console.log(error.data);
-				});
-			}
+		toggleCreatingUser: function toggleCreatingUser() {
+			this.userForm.ref = this.$refs.userForm;
+			this.editingUsers = false;
+			this.userForm.reset();
+			this.userForm.show();
 		},
-		updateQuestion: function updateQuestion() {
+		toggleEditingUser: function toggleEditingUser(test) {
+			this.userForm.ref = this.$refs.userForm;
+			this.editingUsers = true;
+			this.userForm.setData(test);
+			this.userForm.show();
+		},
+		createQuestion: function createQuestion() {
 			var _this3 = this;
 
 			if (this.questionForm.validate()) {
-				window.axios.patch('/api/questions/' + this.questionForm.id, this.questionForm.data()).then(function (response) {
-					_this3.loadTest();
+				window.axios.post('/api/questions', this.questionForm.data()).then(function (response) {
 					_this3.questionForm.hide();
 					_this3.questionForm.reset();
+					_this3.loadTest();
+				}).catch(function (error) {
+					console.log(error.data);
+				});
+			} else {
+				console.error("Can't send form :(");
+			}
+		},
+		updateQuestion: function updateQuestion() {
+			var _this4 = this;
+
+			if (this.questionForm.validate()) {
+				window.axios.patch('/api/questions/' + this.questionForm.id, this.questionForm.data()).then(function (response) {
+					_this4.loadTest();
+					_this4.questionForm.hide();
+					_this4.questionForm.reset();
 				}).catch(function (error) {
 					console.log(error.data);
 				});
 			}
 		},
 		deleteQuestion: function deleteQuestion(question) {
-			var _this4 = this;
+			var _this5 = this;
 
 			window.axios.delete('/api/questions/' + question.id).then(function (response) {
-				_this4.loadTest();
+				_this5.loadTest();
 			}).catch(function (error) {
 				console.log(error.data);
 			});
@@ -1939,6 +2077,87 @@ if (false) {
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-3b998df2\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/views/Tests/Pass.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-layout",
+    { attrs: { row: "", wrap: "", "justify-center": "" } },
+    [
+      _vm._l(_vm.questions, function(question) {
+        return _c(
+          "v-flex",
+          { key: _vm.id, attrs: { md6: "", xs12: "" } },
+          [
+            _c(
+              "v-card",
+              [
+                _c("v-card-title", [_vm._v(_vm._s(question.points))]),
+                _vm._v(" "),
+                _c("v-card-text", [_vm._v(_vm._s(question.body))]),
+                _vm._v(" "),
+                _c(
+                  "v-card-actions",
+                  [
+                    _c("v-text-field", {
+                      attrs: {
+                        name: "question_" + question.id,
+                        "single-line": ""
+                      }
+                    })
+                  ],
+                  1
+                )
+              ],
+              1
+            )
+          ],
+          1
+        )
+      }),
+      _vm._v(" "),
+      _c(
+        "v-flex",
+        { attrs: { xs12: "" } },
+        [
+          _c(
+            "v-btn",
+            {
+              attrs: {
+                fixed: "",
+                dark: "",
+                fab: "",
+                bottom: "",
+                right: "",
+                color: "green"
+              }
+            },
+            [_c("v-icon", [_vm._v("done_all")])],
+            1
+          )
+        ],
+        1
+      )
+    ],
+    2
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-3b998df2", module.exports)
+  }
+}
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-4224a244\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/views/Tests/Show.vue":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2260,7 +2479,7 @@ var render = function() {
                 "v-card",
                 [
                   _c(
-                    "v-questionForm",
+                    "v-form",
                     {
                       ref: "questionForm",
                       model: {
@@ -2395,11 +2614,11 @@ var render = function() {
             {
               attrs: { "max-width": "500px" },
               model: {
-                value: _vm.questionForm.isVisible,
+                value: _vm.userForm.isVisible,
                 callback: function($$v) {
-                  _vm.$set(_vm.questionForm, "isVisible", $$v)
+                  _vm.$set(_vm.userForm, "isVisible", $$v)
                 },
-                expression: "questionForm.isVisible"
+                expression: "userForm.isVisible"
               }
             },
             [
@@ -2407,74 +2626,79 @@ var render = function() {
                 "v-card",
                 [
                   _c(
-                    "v-questionForm",
+                    "v-form",
                     {
-                      ref: "questionForm",
+                      ref: "userForm",
                       model: {
-                        value: _vm.questionForm.isValid,
+                        value: _vm.userForm.isValid,
                         callback: function($$v) {
-                          _vm.$set(_vm.questionForm, "isValid", $$v)
+                          _vm.$set(_vm.userForm, "isValid", $$v)
                         },
-                        expression: "questionForm.isValid"
+                        expression: "userForm.isValid"
                       }
                     },
                     [
                       _c("v-card-title", [
                         _c("span", { staticClass: "headline" }, [
-                          _vm._v(_vm._s(_vm.questionFormCaption))
+                          _vm._v(_vm._s(_vm.userFormCaption))
                         ])
                       ]),
                       _vm._v(" "),
                       _c(
                         "v-card-text",
                         [
-                          _c("v-text-field", {
+                          _c("v-select", {
                             attrs: {
-                              label: "Вопрос",
-                              required: "",
-                              "multi-line": "",
-                              hint: "В будущем здесь будет поддержка Markdown",
-                              rules: [_vm.rules.required]
-                            },
-                            model: {
-                              value: _vm.questionForm.body,
-                              callback: function($$v) {
-                                _vm.$set(_vm.questionForm, "body", $$v)
-                              },
-                              expression: "questionForm.body"
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("v-text-field", {
-                            attrs: {
-                              label: "Ответ",
-                              required: "",
-                              hint:
-                                "В будущем здесь будет поддержка регулярных выражений",
-                              rules: [_vm.rules.required]
-                            },
-                            model: {
-                              value: _vm.questionForm.answer,
-                              callback: function($$v) {
-                                _vm.$set(_vm.questionForm, "answer", $$v)
-                              },
-                              expression: "questionForm.answer"
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("v-text-field", {
-                            attrs: {
-                              label: "Баллы за вопрос",
+                              label: "Тест",
                               required: "",
                               rules: [_vm.rules.required],
-                              type: "number"
+                              items: [_vm.test],
+                              "item-value": "id",
+                              "item-text": "name"
                             },
                             model: {
-                              value: _vm.questionForm.points,
+                              value: _vm.userForm.test_id,
                               callback: function($$v) {
-                                _vm.$set(_vm.questionForm, "points", $$v)
+                                _vm.$set(_vm.userForm, "test_id", $$v)
                               },
-                              expression: "questionForm.points"
+                              expression: "userForm.test_id"
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("v-select", {
+                            attrs: {
+                              label: "Пользователи",
+                              autocomplete: "",
+                              required: "",
+                              rules: [_vm.rules.required],
+                              items: _vm.users,
+                              "item-value": "id",
+                              "item-text": "full_name"
+                            },
+                            model: {
+                              value: _vm.userForm.users_id,
+                              callback: function($$v) {
+                                _vm.$set(_vm.userForm, "users_id", $$v)
+                              },
+                              expression: "userForm.users_id"
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("v-select", {
+                            attrs: {
+                              label: "Статус",
+                              required: "",
+                              rules: [_vm.rules.required],
+                              items: _vm.statuses,
+                              "item-value": "id",
+                              "item-text": "name"
+                            },
+                            model: {
+                              value: _vm.userForm.status,
+                              callback: function($$v) {
+                                _vm.$set(_vm.userForm, "status", $$v)
+                              },
+                              expression: "userForm.status"
                             }
                           })
                         ],
@@ -2492,7 +2716,7 @@ var render = function() {
                               attrs: { color: "blue darken-1", flat: "" },
                               on: {
                                 click: function($event) {
-                                  _vm.questionForm.hide()
+                                  _vm.userForm.hide()
                                 }
                               }
                             },
@@ -2505,7 +2729,7 @@ var render = function() {
                               attrs: { color: "blue darken-1", flat: "" },
                               on: {
                                 click: function($event) {
-                                  _vm.questionForm.reset()
+                                  _vm.userForm.reset()
                                 }
                               }
                             },
@@ -2518,11 +2742,11 @@ var render = function() {
                               attrs: {
                                 color: "blue darken-1",
                                 flat: "",
-                                disabled: !_vm.questionForm.isValid
+                                disabled: !_vm.userForm.isValid
                               },
-                              on: { click: _vm.questionFormAction }
+                              on: { click: _vm.userFormAction }
                             },
-                            [_vm._v(_vm._s(_vm.questionFormActionBtn))]
+                            [_vm._v(_vm._s(_vm.userFormActionBtn))]
                           )
                         ],
                         1
@@ -3144,6 +3368,32 @@ if (false) {
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-fe4d8290\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/views/Tests/Available.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "ul",
+    _vm._l(_vm.tests, function(test) {
+      return _c("li", { key: test.id }, [_vm._v(_vm._s(test.name))])
+    })
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-fe4d8290", module.exports)
+  }
+}
+
+/***/ }),
+
 /***/ "./resources/assets/js/app.js":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -3264,6 +3514,12 @@ var routes = [{
 }, {
 	path: '/',
 	component: __webpack_require__("./resources/assets/js/views/Dashboard.vue")
+}, {
+	path: '/tests',
+	component: __webpack_require__("./resources/assets/js/views/Tests/Available.vue")
+}, {
+	path: '/tests/:id',
+	component: __webpack_require__("./resources/assets/js/views/Tests/Pass.vue")
 }];
 
 /* harmony default export */ __webpack_exports__["a"] = (new __WEBPACK_IMPORTED_MODULE_0_vue_router__["default"]({
@@ -3706,6 +3962,54 @@ module.exports = Component.exports
 
 /***/ }),
 
+/***/ "./resources/assets/js/views/Tests/Available.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__("./node_modules/vue-loader/lib/component-normalizer.js")
+/* script */
+var __vue_script__ = __webpack_require__("./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/views/Tests/Available.vue")
+/* template */
+var __vue_template__ = __webpack_require__("./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-fe4d8290\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/views/Tests/Available.vue")
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/views/Tests/Available.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-fe4d8290", Component.options)
+  } else {
+    hotAPI.reload("data-v-fe4d8290", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+
 /***/ "./resources/assets/js/views/Tests/Index.vue":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3743,6 +4047,54 @@ if (false) {(function () {
     hotAPI.createRecord("data-v-42b933c1", Component.options)
   } else {
     hotAPI.reload("data-v-42b933c1", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ "./resources/assets/js/views/Tests/Pass.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__("./node_modules/vue-loader/lib/component-normalizer.js")
+/* script */
+var __vue_script__ = __webpack_require__("./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/views/Tests/Pass.vue")
+/* template */
+var __vue_template__ = __webpack_require__("./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-3b998df2\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/views/Tests/Pass.vue")
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/views/Tests/Pass.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-3b998df2", Component.options)
+  } else {
+    hotAPI.reload("data-v-3b998df2", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true

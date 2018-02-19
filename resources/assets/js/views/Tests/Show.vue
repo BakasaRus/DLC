@@ -89,7 +89,7 @@
 	</v-flex>
 	<v-dialog v-model="questionForm.isVisible" max-width="500px">
 		<v-card>
-			<v-questionForm v-model="questionForm.isValid" ref="questionForm">
+			<v-form v-model="questionForm.isValid" ref="questionForm">
 			<v-card-title>
 				<span class="headline">{{ questionFormCaption }}</span>
 			</v-card-title>
@@ -123,46 +123,52 @@
 				<v-btn color="blue darken-1" flat @click="questionForm.reset()">Сбросить</v-btn>
 				<v-btn color="blue darken-1" flat @click="questionFormAction" :disabled="!questionForm.isValid">{{ questionFormActionBtn }}</v-btn>
 			</v-card-actions>
-		</v-questionForm>
+		</v-form>
 		</v-card>
 	</v-dialog>
-	<v-dialog v-model="questionForm.isVisible" max-width="500px">
+	<v-dialog v-model="userForm.isVisible" max-width="500px">
 		<v-card>
-			<v-questionForm v-model="questionForm.isValid" ref="questionForm">
+			<v-form v-model="userForm.isValid" ref="userForm">
 			<v-card-title>
-				<span class="headline">{{ questionFormCaption }}</span>
+				<span class="headline">{{ userFormCaption }}</span>
 			</v-card-title>
 			<v-card-text>
-				<v-text-field 
-					label="Вопрос" 
+				<v-select
+					label="Тест"
 					required
-					multi-line
-					hint="В будущем здесь будет поддержка Markdown"
-					v-model="questionForm.body" 
 					:rules="[rules.required]"
-				></v-text-field>
-				<v-text-field 
-					label="Ответ" 
+					:items="[test]"
+					item-value="id"
+					item-text="name"
+					v-model="userForm.test_id"
+				></v-select>
+				<v-select
+					label="Пользователи"
+					autocomplete
 					required
-					hint="В будущем здесь будет поддержка регулярных выражений"
-					v-model="questionForm.answer" 
 					:rules="[rules.required]"
-				></v-text-field>
-				<v-text-field 
-					label="Баллы за вопрос" 
+					:items="users"
+					item-value="id"
+					item-text="full_name"
+					v-model="userForm.users_id"
+				></v-select>
+				<v-select
+					label="Статус"
 					required
-					v-model="questionForm.points" 
 					:rules="[rules.required]"
-					type="number"
-				></v-text-field>
+					:items="statuses"
+					item-value="id"
+					item-text="name"
+					v-model="userForm.status"
+				></v-select>
 			</v-card-text>
 			<v-card-actions>
 				<v-spacer></v-spacer>
-				<v-btn color="blue darken-1" flat @click="questionForm.hide()">Закрыть</v-btn>
-				<v-btn color="blue darken-1" flat @click="questionForm.reset()">Сбросить</v-btn>
-				<v-btn color="blue darken-1" flat @click="questionFormAction" :disabled="!questionForm.isValid">{{ questionFormActionBtn }}</v-btn>
+				<v-btn color="blue darken-1" flat @click="userForm.hide()">Закрыть</v-btn>
+				<v-btn color="blue darken-1" flat @click="userForm.reset()">Сбросить</v-btn>
+				<v-btn color="blue darken-1" flat @click="userFormAction" :disabled="!userForm.isValid">{{ userFormActionBtn }}</v-btn>
 			</v-card-actions>
-		</v-questionForm>
+		</v-form>
 		</v-card>
 	</v-dialog>
 	<v-btn fixed dark fab bottom right color="indigo" @click="toggleCreatingQuestion">
@@ -175,6 +181,7 @@
 	export default {
 		data: () => ({
 			test: {},
+			users: [],
 			questionForm: new window.Form({
 				body: '',
 				answer: '',
@@ -183,7 +190,7 @@
 				id: 0
 			}),
 			userForm: new window.Form({
-				ids: [],
+				users_id: [],
 				status: 0,
 				test_id: 0
 			}),
@@ -202,8 +209,15 @@
 				{ text: 'Максимальный балл', value: 'test.max_points', align: 'left' },
 				{ text: 'Действия', value: 'name', align: 'left', sortable: false },
 			],
+			statuses: [
+				{ id: 0, name: 'Доступен' },
+				{ id: 0, name: 'В процессе' },
+				{ id: 0, name: 'Пройден' },
+				{ id: 0, name: 'Скрыт' }
+			],
 			loading: false,
-			editing: false,
+			editingQuesion: false,
+			editingUsers: false,
 			rules: {
 				required: (value) => !!value || 'Это поле обязательно для заполнения'
 			},
@@ -220,10 +234,16 @@
 
 		computed: {
 			questionFormCaption() {
-				return this.editing ? 'Изменение вопроса' : 'Создание вопроса';
+				return this.editingQuesion ? 'Изменение вопроса' : 'Создание вопроса';
 			},
 			questionFormActionBtn() {
-				return this.editing ? 'Сохранить' : 'Добавить';
+				return this.editingQuesion ? 'Сохранить' : 'Добавить';
+			},
+			userFormCaption() {
+				return this.editingUsers ? 'Изменение статуса' : 'Добавление теста пользователям';
+			},
+			userFormActionBtn() {
+				return this.editingUsers ? 'Изменить' : 'Добавить';
 			}
 		},
 
@@ -243,23 +263,54 @@
 					});
 			},
 
+			loadUsers() {
+				window.axios.get('/api/users')
+					.then(response => {
+						this.users = response.data.data;
+						this.loading = false;
+					})
+					.catch(error => {
+						this.users = [{login: error.message}];
+						this.loading = false;
+					});
+			},
+
 			questionFormAction() {
-				if (this.editing) this.updateQuestion();
+				if (this.editingQuesion) this.updateQuestion();
 				else this.createQuestion();
+			},
+
+			userFormAction() {
+				if (this.editingUsers) this.updateUser();
+				else this.createUser();
 			},
 
 			toggleCreatingQuestion() {
 				this.questionForm.ref = this.$refs.questionForm;
-				this.editing = false;
+				this.editingQuesion = false;
 				this.questionForm.reset();
 				this.questionForm.show();
 			},
 
 			toggleEditingQuestion(test) {
 				this.questionForm.ref = this.$refs.questionForm;
-				this.editing = true;
+				this.editingQuesion = true;
 				this.questionForm.setData(test);
 				this.questionForm.show();
+			},
+
+			toggleCreatingUser() {
+				this.userForm.ref = this.$refs.userForm;
+				this.editingUsers = false;
+				this.userForm.reset();
+				this.userForm.show();
+			},
+
+			toggleEditingUser(test) {
+				this.userForm.ref = this.$refs.userForm;
+				this.editingUsers = true;
+				this.userForm.setData(test);
+				this.userForm.show();
 			},
 
 			createQuestion() {
@@ -269,10 +320,13 @@
 							this.questionForm.hide();
 							this.questionForm.reset();
 							this.loadTest();
-						})
-						.catch(error => {
+						}
+)						.catch(error => {
 							console.log(error.data);
 						});
+				}
+				else {
+					console.error("Can't send form :(");
 				}
 			},
 

@@ -5,6 +5,7 @@ namespace DLC\Http\Controllers;
 use Illuminate\Http\Request;
 use DLC\Test;
 use DLC\Http\Resources\Tests;
+use DLC\Http\Resources\Questions;
 
 class TestController extends Controller
 {
@@ -56,8 +57,8 @@ class TestController extends Controller
 	public function start(Test $test)
 	{
 		$questions = $test->questions->random($test->questions_count)->shuffle();
-		\Auth::guard('api')->user()->questions->attach($questions);
-		return $questions;
+		// \Auth::guard('api')->user()->questions->attach($questions);
+		return Questions::collection($questions);
 	}
 
 	public function end()

@@ -17,6 +17,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::middleware('auth:api')->get('/user/tests', function (Request $request) {
+    return DLC\Http\Resources\Tests::collection($request->user()->tests);
+});
+
+Route::middleware('auth:api')->get('/user/tests/{test}', 'TestController@start');
+
 Route::middleware('auth:api')->get('/logout', function (Request $request) {
     $request->user()->token()->revoke();
     return ['message' => 'Success!'];

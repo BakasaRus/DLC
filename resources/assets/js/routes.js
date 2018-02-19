@@ -24,6 +24,14 @@ let routes = [
 	{
 		path: '/',
 		component: require('./views/Dashboard')
+	},
+	{
+		path: '/tests',
+		component: require('./views/Tests/Available')
+	},
+	{
+		path: '/tests/:id',
+		component: require('./views/Tests/Pass')
 	}
 ];
 
