@@ -67,9 +67,9 @@
 			<template slot="items" slot-scope="props">
 				<td>{{ props.item.id }}</td>
 				<td>{{ props.item.full_name }}</td>
-				<td>{{ props.item.test.status | readableStatus }}</td>
-				<td>{{ props.item.test.points }}</td>
-				<td>{{ props.item.test.max_points }}</td>
+				<td>{{ props.item.test_info.status | readableStatus }}</td>
+				<td>{{ props.item.test_info.points }}</td>
+				<td>{{ props.item.test_info.max_points }}</td>
 				<td>
 					<v-tooltip bottom>
 						<v-btn icon class="mx-0" @click="toggleEditingQuestion(props.item)" slot="activator">

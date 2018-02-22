@@ -45,7 +45,7 @@ class User extends Authenticatable
 
     public function tests()
     {
-        return $this->belongsToMany(Test::class);
+        return $this->belongsToMany(Test::class)->withPivot('status');
     }
 
 	public function createdTests()
@@ -55,7 +55,7 @@ class User extends Authenticatable
 
 	public function questions()
 	{
-		return $this->belongsToMany(Question::class);
+		return $this->belongsToMany(Question::class)->withPivot('answer');
 	}
 
 	public function createdQuestions()

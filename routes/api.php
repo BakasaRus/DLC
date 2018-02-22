@@ -22,6 +22,7 @@ Route::middleware('auth:api')->get('/user/tests', function (Request $request) {
 });
 
 Route::middleware('auth:api')->get('/user/tests/{test}', 'TestController@start');
+Route::middleware('auth:api')->post('/user/tests/{test}', 'TestController@end');
 
 Route::middleware('auth:api')->get('/logout', function (Request $request) {
     $request->user()->token()->revoke();

@@ -18,6 +18,7 @@ class Questions extends Resource
 			'id' => $this->id,
 			'body' => $this->body,
 			'answer' => $this->answer,
+			'user_answer' => $this->when($this->pivot, $this->pivot['answer']),
 			'points' => $this->points,
 			'author_id' => $this->author_id,
 			'author' => new Users($this->whenLoaded('author')),

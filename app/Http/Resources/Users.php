@@ -23,7 +23,19 @@ class Users extends Resource
 			'middle_name' => $this->middle_name,
 			'last_name' => $this->last_name,
 			'full_name' => $this->last_name . ' ' . $this->first_name . ' ' . $this->middle_name,
-			'test' => $this->when($this->test, $this->test),
+			// We should count earned points somehow
+			'test_info' => $this->when($this->test, [
+				'status' => $this->test['status'],
+				'max_points' => $this->questions
+										->where('test_id', $this->test['test_id'])
+										->sum('points'),
+				'points' => $this->questions
+									->where('test_id', $this->test['test_id'])
+									->filter(function($value) {
+										return $value->pivot->answer == $value->answer;
+									})
+									->sum('points'),
+			]),
 			'registration_date' => $this->when(\Auth::guard('api')->user()->isAdmin(), $this->created_at),
 		];
 	}

@@ -794,20 +794,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	data: function data() {
 		return {
 			questions: [],
-			answers: []
+			answers: {}
 		};
 	},
 	created: function created() {
-		this.loadQuestions(this.$route.params.id);
+		this.loadQuestions();
 	},
 
 
 	methods: {
-		loadQuestions: function loadQuestions(id) {
+		loadQuestions: function loadQuestions() {
 			var _this = this;
 
-			window.axios.get('/api/user/tests/' + id).then(function (response) {
-				return _this.questions = response.data.data;
+			window.axios.get('/api/user/tests/' + this.$route.params.id).then(function (response) {
+				_this.questions = response.data.data;
+				for (var i in _this.questions) {
+					_this.answers[_this.questions[i].id] = {
+						'answer': '',
+						'id': _this.questions[i].id
+					};
+				}
+			}).catch(function (error) {
+				return console.log(error);
+			});
+		},
+		sendAnswers: function sendAnswers() {
+			console.log(this.answers);
+			window.axios.post('/api/user/tests/' + this.$route.params.id, { 'answers': this.answers }).then(function (response) {
+				console.log(response.data);
 			}).catch(function (error) {
 				return console.log(error);
 			});
@@ -2091,7 +2105,7 @@ var render = function() {
       _vm._l(_vm.questions, function(question) {
         return _c(
           "v-flex",
-          { key: _vm.id, attrs: { md6: "", xs12: "" } },
+          { key: question.id, attrs: { md6: "", xs12: "" } },
           [
             _c(
               "v-card",
@@ -2107,6 +2121,13 @@ var render = function() {
                       attrs: {
                         name: "question_" + question.id,
                         "single-line": ""
+                      },
+                      model: {
+                        value: _vm.answers[question.id].answer,
+                        callback: function($$v) {
+                          _vm.$set(_vm.answers[question.id], "answer", $$v)
+                        },
+                        expression: "answers[question.id].answer"
                       }
                     })
                   ],
@@ -2134,7 +2155,8 @@ var render = function() {
                 bottom: "",
                 right: "",
                 color: "green"
-              }
+              },
+              on: { click: this.sendAnswers }
             },
             [_c("v-icon", [_vm._v("done_all")])],
             1
@@ -2379,14 +2401,18 @@ var render = function() {
                         _c("td", [
                           _vm._v(
                             _vm._s(
-                              _vm._f("readableStatus")(props.item.test.status)
+                              _vm._f("readableStatus")(
+                                props.item.test_info.status
+                              )
                             )
                           )
                         ]),
                         _vm._v(" "),
-                        _c("td", [_vm._v(_vm._s(props.item.test.points))]),
+                        _c("td", [_vm._v(_vm._s(props.item.test_info.points))]),
                         _vm._v(" "),
-                        _c("td", [_vm._v(_vm._s(props.item.test.max_points))]),
+                        _c("td", [
+                          _vm._v(_vm._s(props.item.test_info.max_points))
+                        ]),
                         _vm._v(" "),
                         _c(
                           "td",

@@ -21,7 +21,7 @@ class TestController extends Controller
 
 	public function show(Test $test)
 	{
-		return new Tests($test->load(['questions', 'author', 'users']));
+		return new Tests($test->load(['questions.users', 'author', 'users']));
 	}
 
 	public function store(Request $request)
@@ -56,13 +56,22 @@ class TestController extends Controller
 
 	public function start(Test $test)
 	{
+		// If we access test again, we should clear our previous answers
+		request()->user()->questions()->detach($test->questions);
+		$test->users()->syncWithoutDetaching([request()->user()->id, ['status' => 1]]);
 		$questions = $test->questions->random($test->questions_count)->shuffle();
-		// \Auth::guard('api')->user()->questions->attach($questions);
+		request()->user()->questions()->attach($questions, ['answer' => '']);
 		return Questions::collection($questions);
 	}
 
-	public function end()
+	public function end(Test $test)
 	{
-		
+		$test->users()->syncWithoutDetaching([request()->user()->id, ['status' => 2]]);
+		$answers = collect(request('answers'));
+		$answers = $answers->mapWithKeys(function($item) {
+			return [$item['id'] => ['answer' => $item['answer']]];
+		});
+		request()->user()->questions()->syncWithoutDetaching($answers);
+		return $answers;
 	}
 }
