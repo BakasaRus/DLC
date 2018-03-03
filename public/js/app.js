@@ -1002,19 +1002,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
@@ -1030,12 +1017,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			}),
 			userForm: new window.Form({
 				users_id: [],
-				status: 0,
 				test_id: 0
 			}),
 			questionHeaders: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'Вопрос', value: 'body', align: 'left' }, { text: 'Ответ', value: 'answer', align: 'left' }, { text: 'Баллы', value: 'points', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }],
 			usersHeaders: [{ text: 'ID', value: 'id', align: 'left' }, { text: 'ФИО', value: 'full_name', align: 'left' }, { text: 'Статус', value: 'test.status', align: 'left' }, { text: 'Количество баллов', value: 'test.points', align: 'left' }, { text: 'Максимальный балл', value: 'test.max_points', align: 'left' }, { text: 'Действия', value: 'name', align: 'left', sortable: false }],
-			statuses: [{ id: 0, name: 'Доступен' }, { id: 0, name: 'В процессе' }, { id: 0, name: 'Пройден' }, { id: 0, name: 'Скрыт' }],
+			statuses: [{ id: 0, name: 'Доступен' }, { id: 1, name: 'В процессе' }, { id: 2, name: 'Пройден' }, { id: null, name: 'Скрыт' }],
 			loading: false,
 			editingQuesion: false,
 			editingUsers: false,
@@ -1050,6 +1036,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	mounted: function mounted() {
 		// Это должно работать, но почему-то не
 		this.questionForm.ref = this.$refs.questionForm;
+		this.userForm.ref = this.$refs.userForm;
 	},
 	created: function created() {
 		this.loadTest();
@@ -1062,12 +1049,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		},
 		questionFormActionBtn: function questionFormActionBtn() {
 			return this.editingQuesion ? 'Сохранить' : 'Добавить';
-		},
-		userFormCaption: function userFormCaption() {
-			return this.editingUsers ? 'Изменение статуса' : 'Добавление теста пользователям';
-		},
-		userFormActionBtn: function userFormActionBtn() {
-			return this.editingUsers ? 'Изменить' : 'Добавить';
 		}
 	},
 
@@ -1081,6 +1062,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			window.axios.get('/api/tests/' + this.$route.params.id).then(function (response) {
 				_this.test = response.data.data;
 				_this.questionForm.test_id = _this.test.id;
+				_this.userForm.test_id = _this.test.id;
 			}).catch(function (error) {
 				console.log(error);
 			});
@@ -1092,15 +1074,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				_this2.users = response.data.data;
 				_this2.loading = false;
 			}).catch(function (error) {
-				_this2.users = [{ login: error.message }];
+				console.log("Can't load users' info, sorry :(");
 				_this2.loading = false;
 			});
 		},
 		questionFormAction: function questionFormAction() {
 			if (this.editingQuesion) this.updateQuestion();else this.createQuestion();
-		},
-		userFormAction: function userFormAction() {
-			if (this.editingUsers) this.updateUser();else this.createUser();
 		},
 		toggleCreatingQuestion: function toggleCreatingQuestion() {
 			this.questionForm.ref = this.$refs.questionForm;
@@ -1116,24 +1095,42 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		},
 		toggleCreatingUser: function toggleCreatingUser() {
 			this.userForm.ref = this.$refs.userForm;
+			this.loadUsers();
 			this.editingUsers = false;
 			this.userForm.reset();
 			this.userForm.show();
 		},
-		toggleEditingUser: function toggleEditingUser(test) {
+		toggleEditingUser: function toggleEditingUser(users_id) {
 			this.userForm.ref = this.$refs.userForm;
+			this.loadUsers();
 			this.editingUsers = true;
-			this.userForm.setData(test);
+			this.userForm.setData({ users_id: users_id, test_id: this.test.id });
 			this.userForm.show();
 		},
-		createQuestion: function createQuestion() {
+		addUsers: function addUsers() {
 			var _this3 = this;
+
+			if (this.userForm.validate()) {
+				window.axios.post('/api/tests/' + this.test.id + '/users', this.userForm.data()).then(function (response) {
+					_this3.loadTest();
+				}).catch(function (error) {});
+			}
+		},
+		deleteUser: function deleteUser(user) {
+			var _this4 = this;
+
+			window.axios.delete('/api/tests/' + this.test.id + '/users/' + user.id).then(function (response) {
+				_this4.loadTest();
+			}).catch(function (error) {});
+		},
+		createQuestion: function createQuestion() {
+			var _this5 = this;
 
 			if (this.questionForm.validate()) {
 				window.axios.post('/api/questions', this.questionForm.data()).then(function (response) {
-					_this3.questionForm.hide();
-					_this3.questionForm.reset();
-					_this3.loadTest();
+					_this5.questionForm.hide();
+					_this5.questionForm.reset();
+					_this5.loadTest();
 				}).catch(function (error) {
 					console.log(error.data);
 				});
@@ -1142,23 +1139,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			}
 		},
 		updateQuestion: function updateQuestion() {
-			var _this4 = this;
+			var _this6 = this;
 
 			if (this.questionForm.validate()) {
 				window.axios.patch('/api/questions/' + this.questionForm.id, this.questionForm.data()).then(function (response) {
-					_this4.loadTest();
-					_this4.questionForm.hide();
-					_this4.questionForm.reset();
+					_this6.loadTest();
+					_this6.questionForm.hide();
+					_this6.questionForm.reset();
 				}).catch(function (error) {
 					console.log(error.data);
 				});
 			}
 		},
 		deleteQuestion: function deleteQuestion(question) {
-			var _this5 = this;
+			var _this7 = this;
 
 			window.axios.delete('/api/questions/' + question.id).then(function (response) {
-				_this5.loadTest();
+				_this7.loadTest();
 			}).catch(function (error) {
 				console.log(error.data);
 			});
@@ -2249,7 +2246,7 @@ var render = function() {
                               attrs: { slot: "activator", icon: "" },
                               on: {
                                 click: function($event) {
-                                  _vm.toggleEditingQuestion(_vm.props.item)
+                                  _vm.toggleEditingUser([])
                                 }
                               },
                               slot: "activator"
@@ -2426,11 +2423,7 @@ var render = function() {
                                   {
                                     staticClass: "mx-0",
                                     attrs: { slot: "activator", icon: "" },
-                                    on: {
-                                      click: function($event) {
-                                        _vm.toggleEditingQuestion(props.item)
-                                      }
-                                    },
+                                    on: { click: function($event) {} },
                                     slot: "activator"
                                   },
                                   [
@@ -2459,7 +2452,7 @@ var render = function() {
                                     attrs: { slot: "activator", icon: "" },
                                     on: {
                                       click: function($event) {
-                                        _vm.deleteQuestion(props.item)
+                                        _vm.deleteUser(props.item)
                                       }
                                     },
                                     slot: "activator"
@@ -2615,7 +2608,7 @@ var render = function() {
                             {
                               attrs: {
                                 color: "blue darken-1",
-                                flat: "",
+                                dark: "",
                                 disabled: !_vm.questionForm.isValid
                               },
                               on: { click: _vm.questionFormAction }
@@ -2638,7 +2631,7 @@ var render = function() {
           _c(
             "v-dialog",
             {
-              attrs: { "max-width": "500px" },
+              attrs: { "max-width": "800px" },
               model: {
                 value: _vm.userForm.isVisible,
                 callback: function($$v) {
@@ -2666,7 +2659,7 @@ var render = function() {
                     [
                       _c("v-card-title", [
                         _c("span", { staticClass: "headline" }, [
-                          _vm._v(_vm._s(_vm.userFormCaption))
+                          _vm._v("Добавить пользователей")
                         ])
                       ]),
                       _vm._v(" "),
@@ -2675,27 +2668,14 @@ var render = function() {
                         [
                           _c("v-select", {
                             attrs: {
-                              label: "Тест",
-                              required: "",
-                              rules: [_vm.rules.required],
-                              items: [_vm.test],
-                              "item-value": "id",
-                              "item-text": "name"
-                            },
-                            model: {
-                              value: _vm.userForm.test_id,
-                              callback: function($$v) {
-                                _vm.$set(_vm.userForm, "test_id", $$v)
-                              },
-                              expression: "userForm.test_id"
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("v-select", {
-                            attrs: {
                               label: "Пользователи",
                               autocomplete: "",
+                              multiple: "",
                               required: "",
+                              chips: "",
+                              clearable: "",
+                              "deletable-chips": "",
+                              dense: "",
                               rules: [_vm.rules.required],
                               items: _vm.users,
                               "item-value": "id",
@@ -2707,24 +2687,6 @@ var render = function() {
                                 _vm.$set(_vm.userForm, "users_id", $$v)
                               },
                               expression: "userForm.users_id"
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("v-select", {
-                            attrs: {
-                              label: "Статус",
-                              required: "",
-                              rules: [_vm.rules.required],
-                              items: _vm.statuses,
-                              "item-value": "id",
-                              "item-text": "name"
-                            },
-                            model: {
-                              value: _vm.userForm.status,
-                              callback: function($$v) {
-                                _vm.$set(_vm.userForm, "status", $$v)
-                              },
-                              expression: "userForm.status"
                             }
                           })
                         ],
@@ -2767,12 +2729,12 @@ var render = function() {
                             {
                               attrs: {
                                 color: "blue darken-1",
-                                flat: "",
+                                dark: "",
                                 disabled: !_vm.userForm.isValid
                               },
-                              on: { click: _vm.userFormAction }
+                              on: { click: _vm.addUsers }
                             },
-                            [_vm._v(_vm._s(_vm.userFormActionBtn))]
+                            [_vm._v("Добавить")]
                           )
                         ],
                         1

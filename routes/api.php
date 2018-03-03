@@ -21,8 +21,6 @@ Route::middleware('auth:api')->get('/user/tests', function (Request $request) {
     return DLC\Http\Resources\Tests::collection($request->user()->tests);
 });
 
-Route::middleware('auth:api')->get('/user/tests/{test}', 'TestController@start');
-Route::middleware('auth:api')->post('/user/tests/{test}', 'TestController@end');
 
 Route::middleware('auth:api')->get('/logout', function (Request $request) {
     $request->user()->token()->revoke();
@@ -51,6 +49,10 @@ Route::get('/tests/{test}', 'TestController@show');
 Route::post('/tests', 'TestController@store');
 Route::patch('/tests/{test}', 'TestController@update');
 Route::delete('/tests/{test}', 'TestController@delete');
+Route::get('/user/tests/{test}', 'TestController@start');
+Route::post('/user/tests/{test}', 'TestController@end');
+Route::post('/tests/{test}/users', 'TestController@addUsers');
+Route::delete('/tests/{test}/users/{user}', 'TestController@deleteUser');
 
 Route::get('/questions', 'QuestionController@index');
 Route::get('/questions/{question}', 'QuestionController@show');

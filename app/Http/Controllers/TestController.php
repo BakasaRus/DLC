@@ -4,6 +4,7 @@ namespace DLC\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DLC\Test;
+use DLC\User;
 use DLC\Http\Resources\Tests;
 use DLC\Http\Resources\Questions;
 
@@ -73,5 +74,20 @@ class TestController extends Controller
 		});
 		request()->user()->questions()->syncWithoutDetaching($answers);
 		return $answers;
+	}
+
+	public function addUsers(Test $test)
+	{
+		$users = collect(request('users_id'))->mapWithKeys(function($item) {
+			return [$item => ['status' => 0]];
+		});
+		$test->users()->syncWithoutDetaching($users);
+		return ['message' => 'Success!'];
+	}
+
+	public function deleteUser(Test $test, User $user)
+	{
+		$test->users()->detach($user);
+		return ['message' => 'Success!'];
 	}
 }

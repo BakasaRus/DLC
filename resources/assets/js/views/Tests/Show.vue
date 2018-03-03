@@ -13,7 +13,7 @@
 			</v-card-text>
 			<v-card-actions>
 				<v-tooltip bottom>
-					<v-btn icon class="mx-0" @click="toggleEditingQuestion(props.item)" slot="activator">
+					<v-btn icon class="mx-0" @click="toggleEditingUser([])" slot="activator">
 						<v-icon color="green">face</v-icon>
 					</v-btn>
 					<span>Статус пользователей</span>
@@ -72,13 +72,13 @@
 				<td>{{ props.item.test_info.max_points }}</td>
 				<td>
 					<v-tooltip bottom>
-						<v-btn icon class="mx-0" @click="toggleEditingQuestion(props.item)" slot="activator">
+						<v-btn icon class="mx-0" @click="" slot="activator">
 							<v-icon color="green">edit</v-icon>
 						</v-btn>
 						<span>Редактировать</span>
 					</v-tooltip>
 					<v-tooltip bottom>
-						<v-btn icon class="mx-0" @click="deleteQuestion(props.item)" slot="activator">
+						<v-btn icon class="mx-0" @click="deleteUser(props.item)" slot="activator">
 							<v-icon color="red">delete</v-icon>
 						</v-btn>
 						<span>Удалить</span>
@@ -121,52 +121,39 @@
 				<v-spacer></v-spacer>
 				<v-btn color="blue darken-1" flat @click="questionForm.hide()">Закрыть</v-btn>
 				<v-btn color="blue darken-1" flat @click="questionForm.reset()">Сбросить</v-btn>
-				<v-btn color="blue darken-1" flat @click="questionFormAction" :disabled="!questionForm.isValid">{{ questionFormActionBtn }}</v-btn>
+				<v-btn color="blue darken-1" dark @click="questionFormAction" :disabled="!questionForm.isValid">{{ questionFormActionBtn }}</v-btn>
 			</v-card-actions>
 		</v-form>
 		</v-card>
 	</v-dialog>
-	<v-dialog v-model="userForm.isVisible" max-width="500px">
+	<v-dialog v-model="userForm.isVisible" max-width="800px">
 		<v-card>
 			<v-form v-model="userForm.isValid" ref="userForm">
 			<v-card-title>
-				<span class="headline">{{ userFormCaption }}</span>
+				<span class="headline">Добавить пользователей</span>
 			</v-card-title>
 			<v-card-text>
 				<v-select
-					label="Тест"
-					required
-					:rules="[rules.required]"
-					:items="[test]"
-					item-value="id"
-					item-text="name"
-					v-model="userForm.test_id"
-				></v-select>
-				<v-select
 					label="Пользователи"
 					autocomplete
+					multiple
 					required
+					chips
+					clearable
+					deletable-chips
+					dense
 					:rules="[rules.required]"
 					:items="users"
 					item-value="id"
 					item-text="full_name"
 					v-model="userForm.users_id"
 				></v-select>
-				<v-select
-					label="Статус"
-					required
-					:rules="[rules.required]"
-					:items="statuses"
-					item-value="id"
-					item-text="name"
-					v-model="userForm.status"
-				></v-select>
 			</v-card-text>
 			<v-card-actions>
 				<v-spacer></v-spacer>
 				<v-btn color="blue darken-1" flat @click="userForm.hide()">Закрыть</v-btn>
 				<v-btn color="blue darken-1" flat @click="userForm.reset()">Сбросить</v-btn>
-				<v-btn color="blue darken-1" flat @click="userFormAction" :disabled="!userForm.isValid">{{ userFormActionBtn }}</v-btn>
+				<v-btn color="blue darken-1" dark @click="addUsers" :disabled="!userForm.isValid">Добавить</v-btn>
 			</v-card-actions>
 		</v-form>
 		</v-card>
@@ -191,7 +178,6 @@
 			}),
 			userForm: new window.Form({
 				users_id: [],
-				status: 0,
 				test_id: 0
 			}),
 			questionHeaders: [
@@ -211,9 +197,9 @@
 			],
 			statuses: [
 				{ id: 0, name: 'Доступен' },
-				{ id: 0, name: 'В процессе' },
-				{ id: 0, name: 'Пройден' },
-				{ id: 0, name: 'Скрыт' }
+				{ id: 1, name: 'В процессе' },
+				{ id: 2, name: 'Пройден' },
+				{ id: null, name: 'Скрыт' }
 			],
 			loading: false,
 			editingQuesion: false,
@@ -226,6 +212,7 @@
 		mounted() {
 			// Это должно работать, но почему-то не
 			this.questionForm.ref = this.$refs.questionForm;
+			this.userForm.ref = this.$refs.userForm;
 		},
 
 		created() {
@@ -238,12 +225,6 @@
 			},
 			questionFormActionBtn() {
 				return this.editingQuesion ? 'Сохранить' : 'Добавить';
-			},
-			userFormCaption() {
-				return this.editingUsers ? 'Изменение статуса' : 'Добавление теста пользователям';
-			},
-			userFormActionBtn() {
-				return this.editingUsers ? 'Изменить' : 'Добавить';
 			}
 		},
 
@@ -257,6 +238,7 @@
 					.then(response => {
 						this.test = response.data.data;
 						this.questionForm.test_id = this.test.id;
+						this.userForm.test_id = this.test.id;
 					})
 					.catch(error => {
 						console.log(error);
@@ -270,7 +252,7 @@
 						this.loading = false;
 					})
 					.catch(error => {
-						this.users = [{login: error.message}];
+						console.log("Can't load users' info, sorry :(");
 						this.loading = false;
 					});
 			},
@@ -278,11 +260,6 @@
 			questionFormAction() {
 				if (this.editingQuesion) this.updateQuestion();
 				else this.createQuestion();
-			},
-
-			userFormAction() {
-				if (this.editingUsers) this.updateUser();
-				else this.createUser();
 			},
 
 			toggleCreatingQuestion() {
@@ -301,16 +278,36 @@
 
 			toggleCreatingUser() {
 				this.userForm.ref = this.$refs.userForm;
+				this.loadUsers();
 				this.editingUsers = false;
 				this.userForm.reset();
 				this.userForm.show();
 			},
 
-			toggleEditingUser(test) {
+			toggleEditingUser(users_id) {
 				this.userForm.ref = this.$refs.userForm;
+				this.loadUsers();
 				this.editingUsers = true;
-				this.userForm.setData(test);
+				this.userForm.setData({users_id: users_id, test_id: this.test.id});
 				this.userForm.show();
+			},
+
+			addUsers() {
+				if (this.userForm.validate()) {
+					window.axios.post('/api/tests/' + this.test.id + '/users', this.userForm.data())
+								.then(response => {
+									this.loadTest();
+								})
+								.catch(error => {});
+				}
+			},
+
+			deleteUser(user) {
+				window.axios.delete('/api/tests/' + this.test.id + '/users/' + user.id)
+							.then(response => {
+								this.loadTest();
+							})
+							.catch(error => {});
 			},
 
 			createQuestion() {
