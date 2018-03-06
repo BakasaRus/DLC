@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::middleware('auth:api')->get('/user/tests', function (Request $request) {
-    return DLC\Http\Resources\Tests::collection($request->user()->tests);
+    return DLC\Http\Resources\Tests::collection($request->user()->tests->load('author'));
 });
 
 

@@ -23,7 +23,7 @@ class Users extends Resource
 			'middle_name' => $this->middle_name,
 			'last_name' => $this->last_name,
 			'full_name' => $this->last_name . ' ' . $this->first_name . ' ' . $this->middle_name,
-			// We should count earned points somehow
+			// We should count earned points somehow (in ideal world, not like this)
 			'test_info' => $this->when($this->test, [
 				'status' => $this->test['status'],
 				'max_points' => $this->questions

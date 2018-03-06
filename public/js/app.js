@@ -502,6 +502,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
@@ -3364,9 +3380,73 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
-    "ul",
+    "v-layout",
+    { attrs: { row: "", wrap: "", "justify-center": "" } },
     _vm._l(_vm.tests, function(test) {
-      return _c("li", { key: test.id }, [_vm._v(_vm._s(test.name))])
+      return _c(
+        "v-flex",
+        { key: test.id, attrs: { md4: "", sm6: "", xs12: "" } },
+        [
+          _c(
+            "v-card",
+            [
+              _c("v-card-title", [
+                _c("span", { staticClass: "headline" }, [
+                  _vm._v(_vm._s(test.name) + " "),
+                  _c("span", { staticClass: "subheading" }, [
+                    _vm._v("(" + _vm._s(test.subject.name) + ")")
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("v-card-text", [
+                _vm._v(
+                  "\n\t\t\t\tКоличество вопросов: " +
+                    _vm._s(test.questions_count)
+                ),
+                _c("br"),
+                _vm._v(
+                  "\n\t\t\t\tАвтор: " +
+                    _vm._s(test.author.full_name) +
+                    "\n\t\t\t"
+                )
+              ]),
+              _vm._v(" "),
+              _c(
+                "v-card-actions",
+                [
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: {
+                        slot: "activator",
+                        block: "",
+                        color: "primary",
+                        dark: ""
+                      },
+                      on: {
+                        to: function($event) {
+                          "/tests/" + test.id
+                        }
+                      },
+                      slot: "activator"
+                    },
+                    [
+                      _c("span", [_vm._v("Погнали")]),
+                      _vm._v(" "),
+                      _c("v-icon", [_vm._v("keyboard_arrow_right")])
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      )
     })
   )
 }
