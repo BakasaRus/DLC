@@ -7,6 +7,7 @@ use DLC\Test;
 use DLC\User;
 use DLC\Http\Resources\Tests;
 use DLC\Http\Resources\Questions;
+use DLC\Events\TestIsCompleted;
 
 class TestController extends Controller
 {
@@ -73,6 +74,7 @@ class TestController extends Controller
 			return [$item['id'] => ['answer' => $item['answer']]];
 		});
 		request()->user()->questions()->syncWithoutDetaching($answers);
+		event(new TestIsCompleted($test, request()->user()));
 		return $answers;
 	}
 

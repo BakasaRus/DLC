@@ -17,7 +17,8 @@ class CreateTestUserTable extends Migration
             $table->integer('test_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->integer('status');
-            // Here should be max score, user score and percentage, but I'll implement it as Eloquent scopes
+            $table->integer('points')->default(0);
+            $table->integer('max_points')->default(0);
             $table->timestamps();
 
             $table->foreign('test_id')

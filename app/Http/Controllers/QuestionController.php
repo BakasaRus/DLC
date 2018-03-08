@@ -5,6 +5,7 @@ namespace DLC\Http\Controllers;
 use Illuminate\Http\Request;
 use DLC\Question;
 use DLC\Http\Resources\Questions;
+use DLC\Events\QuestionIsUpdated;
 
 class QuestionController extends Controller
 {
@@ -39,6 +40,7 @@ class QuestionController extends Controller
             'test_id' => 'required|exists:tests,id'
         ]);
         $question->update($validated);
+        event(new QuestionIsUpdated($question));
         return ['message' => 'Success!'];
     }
 

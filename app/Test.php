@@ -25,6 +25,6 @@ class Test extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class)->as('test')->withPivot('status');
+        return $this->belongsToMany(User::class)->as('test')->withPivot('status', 'points', 'max_points');
     }
 }

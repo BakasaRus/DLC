@@ -24,6 +24,11 @@ class Tests extends Resource
 			'questions_count' => $this->questions_count,
 			'questions' => Questions::collection($this->whenLoaded('questions')),
 			'users' => Users::collection($this->whenLoaded('users')),
+			'test_info' => $this->when($this->test, [
+				'status' => $this->test['status'],
+				'max_points' => $this->test['max_points'],
+				'points' => $this->test['points'],
+			]),
 			'created_at' => $this->created_at
 		];
 	}

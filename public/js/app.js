@@ -518,6 +518,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	data: function data() {
@@ -3391,8 +3398,11 @@ var render = function() {
             "v-card",
             [
               _c("v-card-title", [
-                _c("span", { staticClass: "headline" }, [
-                  _vm._v(_vm._s(test.name) + " "),
+                _c("div", [
+                  _c("div", { staticClass: "headline" }, [
+                    _vm._v(_vm._s(test.name))
+                  ]),
+                  _vm._v(" "),
                   _c("span", { staticClass: "subheading" }, [
                     _vm._v("(" + _vm._s(test.subject.name) + ")")
                   ])
@@ -3405,11 +3415,23 @@ var render = function() {
                     _vm._s(test.questions_count)
                 ),
                 _c("br"),
-                _vm._v(
-                  "\n\t\t\t\tАвтор: " +
-                    _vm._s(test.author.full_name) +
-                    "\n\t\t\t"
-                )
+                _vm._v("\n\t\t\t\tАвтор: " + _vm._s(test.author.full_name)),
+                _c("br"),
+                _vm._v(" "),
+                test.test_info.max_points
+                  ? _c("span", [
+                      _vm._v(
+                        "\n\t\t\t\t\tМаксимум баллов за выданный вариант: " +
+                          _vm._s(test.test_info.max_points)
+                      ),
+                      _c("br"),
+                      _vm._v(
+                        "\n\t\t\t\t\tНабрано баллов: " +
+                          _vm._s(test.test_info.points) +
+                          "\n\t\t\t\t"
+                      )
+                    ])
+                  : _vm._e()
               ]),
               _vm._v(" "),
               _c(
@@ -3432,7 +3454,7 @@ var render = function() {
                       slot: "activator"
                     },
                     [
-                      _c("span", [_vm._v("Погнали")]),
+                      _c("span", [_vm._v("Пройти")]),
                       _vm._v(" "),
                       _c("v-icon", [_vm._v("keyboard_arrow_right")])
                     ],
